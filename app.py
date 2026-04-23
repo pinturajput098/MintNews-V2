@@ -3,19 +3,17 @@ import requests
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import sqlite3
 from datetime import datetime
-import math
-import openai
+import google.generativeai as genai
 
 app = Flask(__name__)
 app.secret_key = "pintu_ai_secret"
 
-# --- TERE API KEYS ---
+# --- API KEYS ---
 GNEWS_KEY = '5b8559e3138b18090304c361c25653b0'
 MARKETAUX_KEY = 'YSU6oi4R1R0WahkqNdMWRUMyH5OPQSX8NuQ7nL3Y'
 
-# PROFESSIONAL METHOD: Key ab Render ke "Environment" se aayegi. 
-# GitHub ko code me koi key nahi dikhegi, isliye push reject nahi hoga.
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+# Gemini Setup (Key Render ke Environment se lega)
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # --- DATABASE SETUP ---
 def get_db_connection():
@@ -26,30 +24,25 @@ def get_db_connection():
 def init_db():
     conn = get_db_connection()
     c = conn.cursor()
-    # News Table (Admin Posts)
     c.execute('''CREATE TABLE IF NOT EXISTS news 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, 
                   image TEXT, category TEXT, date TEXT, author TEXT, views INTEGER DEFAULT 0)''')
-    # Comments Table
     c.execute('''CREATE TABLE IF NOT EXISTS comments 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, user TEXT, text TEXT, date TEXT)''')
-    # Newsletters
     c.execute('''CREATE TABLE IF NOT EXISTS subscribers (email TEXT PRIMARY KEY)''')
     conn.commit()
     conn.close()
 
 init_db()
 
-# --- UTILS (OpenAI 0.28.0 Compatibility) ---
+# --- GEMINI AI SUMMARY FUNCTION ---
 def get_ai_summary(text):
-    if not openai.api_key:
-        return "AI Error: OpenAI API Key not found in Environment Variables."
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": f"Summarize this news in 3 short bullet points in Hindi: {text}"}]
-        )
-        return response['choices'][0]['message']['content']
+        # Gemini Model use kar rahe hain
+        model = genai.GenerativeModel('gemini-pro')
+        prompt = f"Summarize this news in 3 short bullet points in Hindi. Provide only the bullet points: {text}"
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
         return f"AI Summary unavailable: {str(e)}"
 
@@ -97,7 +90,6 @@ def index():
     featured = api_articles[0] if api_articles else None
     return render_template('index.html', articles=api_articles[1:], featured=featured, local_news=local_news, cat=cat)
 
-# --- ADMIN DASHBOARD ---
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if request.method == 'POST':
