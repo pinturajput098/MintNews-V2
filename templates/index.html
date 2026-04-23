@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint News | AI Brand</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=Idxmx6YnSxqcQAr0Un1Khg"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','Idxmx6YnSxqcQAr0Un1Khg');</script>
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script>window.OneSignal=window.OneSignal||[];OneSignal.push(function(){OneSignal.init({appId:"os_v2_app_kubqkrzrr5dsdjxsmhj5it5tcrjyshkkstqeuz57cmayinpp7dyzplsozlwtn6ltefex7ibvi4zsrdrifj3a6jwdiqbhcbofzcvwz6a"});});</script>
+    <script>(function(s){s.dataset.zone='10910578',s.src='https://al5sm.com/tag.min.js'})([document.documentElement,document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Orbitron:wght@700&display=swap');
+        :root { --main: #00d2ff; --bg: #050a0f; --card: #12181f; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; }
+        
+        /* Navbar */
+        nav { padding: 15px; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-family: 'Orbitron'; color: var(--main); font-size: 20px; text-decoration: none; }
+        .search-box { flex: 1; margin: 0 20px; position: relative; }
+        .search-box input { width: 100%; padding: 10px; border-radius: 20px; border: 1px solid #333; background: #000; color: #fff; }
+
+        /* Featured Banner */
+        .hero { position: relative; width: 100%; height: 400px; overflow: hidden; }
+        .hero img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.4); }
+        .hero-text { position: absolute; bottom: 30px; left: 20px; right: 20px; }
+
+        /* News Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 20px; }
+        .card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #222; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: var(--main); }
+        .card img { width: 100%; height: 180px; object-fit: cover; }
+        .card-info { padding: 15px; }
+        
+        .tag { background: var(--main); color: #000; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
+        .ai-box { display: none; background: #000; border-left: 3px solid var(--main); padding: 10px; margin-top: 10px; font-size: 13px; color: #00ff88; }
+        
+        /* Ticker */
+        .ticker { width: 100%; height: 40px; background: #000; border-bottom: 1px solid var(--main); overflow: hidden; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">MINT NEWS</a>
+    <div class="search-box">
+        <form action="/" method="GET">
+            <input type="text" name="search" placeholder="Search News, Crypto, Tech...">
+        </form>
+    </div>
+    <div onclick="alert('Admin Login coming in Phase 2')">👤</div>
+</nav>
+
+<div class="ticker">
+    <iframe src="https://s.tradingview.com/embed-widget/ticker-tape/?colorTheme=dark" width="100%" height="40" frameborder="0"></iframe>
+</div>
+
+{% if featured %}
+<div class="hero">
+    <img src="{{ featured.img }}">
+    <div class="hero-text">
+        <span class="tag">TOP STORY</span>
+        <h1 style="margin:10px 0;">{{ featured.title }}</h1>
+        <a href="{{ featured.url }}" style="color:var(--main); text-decoration:none; font-weight:bold;">READ FULL ARTICLE →</a>
+    </div>
+</div>
+{% endif %}
+
+<div class="grid">
+    {% for a in articles %}
+    <div class="card">
+        <img src="{{ a.img }}" loading="lazy">
+        <div class="card-info">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="tag">{{ a.tag }}</span>
+                <span style="font-size:10px; color:#666;">{{ a.date }} • 2 min read</span>
+            </div>
+            <h3 style="font-size:16px; margin:0;">{{ a.title }}</h3>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button onclick="getSummary('{{ loop.index }}', '{{ a.desc|replace("'", "") }}')" style="flex:1; padding:8px; background:none; border:1px solid var(--main); color:var(--main); border-radius:5px; cursor:pointer;">⚡ AI SUMMARY</button>
+                <a href="{{ a.url }}" target="_blank" style="flex:1;"><button style="width:100%; padding:8px; background:var(--main); color:#000; border:none; border-radius:5px; font-weight:bold;">SOURCE</button></a>
+            </div>
+            <div id="ai-{{ loop.index }}" class="ai-box"></div>
+        </div>
+    </div>
+    {% if loop.index % 3 == 0 %}
+        <script>(function(s){s.dataset.zone='10910514',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement,document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div id="newsletter-popup" style="position:fixed; bottom:20px; right:20px; background:var(--card); padding:20px; border:1px solid var(--main); border-radius:10px; z-index:9999;">
+    <h4>Get Updates! 📧</h4>
+    <input type="email" id="sub-email" placeholder="Email..." style="padding:8px; width:150px;">
+    <button onclick="subscribe()" style="background:var(--main); border:none; padding:8px;">Sub</button>
+</div>
+
+<script>
+function getSummary(id, text) {
+    const box = document.getElementById('ai-'+id);
+    box.style.display = 'block';
+    box.innerHTML = "> AI is thinking...";
+    fetch('/api/ai-summarize', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text: text})
+    }).then(r => r.json()).then(d => {
+        box.innerHTML = "[CHATGPT]: " + d.summary;
+        speechSynthesis.speak(new SpeechSynthesisUtterance(d.summary));
+    });
+}
+function subscribe() { alert('Subscribed to Mint Intelligence!'); document.getElementById('newsletter-popup').style.display='none'; }
+</script>
+</body>
+</html>
+
