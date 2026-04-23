@@ -12,8 +12,10 @@ app.secret_key = "pintu_ai_secret"
 GNEWS_KEY = '5b8559e3138b18090304c361c25653b0'
 MARKETAUX_KEY = 'YSU6oi4R1R0WahkqNdMWRUMyH5OPQSX8NuQ7nL3Y'
 
-# Gemini Setup (Key Render ke Environment se lega)
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+# Gemini Setup - Render ke Environment Variables se key uthayega
+api_key = os.environ.get("GEMINI_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
 
 # --- DATABASE SETUP ---
 def get_db_connection():
@@ -38,11 +40,16 @@ init_db()
 # --- GEMINI AI SUMMARY FUNCTION ---
 def get_ai_summary(text):
     try:
-        # Gemini Model use kar rahe hain
-        model = genai.GenerativeModel('gemini-pro')
+        # 'gemini-pro' purana ho gaya tha, ab 'gemini-1.5-flash' use kar rahe hain
+        model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"Summarize this news in 3 short bullet points in Hindi. Provide only the bullet points: {text}"
         response = model.generate_content(prompt)
-        return response.text
+        
+        # Response text ko return kar rahe hain
+        if response and response.text:
+            return response.text
+        else:
+            return "AI Summary: No response generated."
     except Exception as e:
         return f"AI Summary unavailable: {str(e)}"
 
