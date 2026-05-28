@@ -214,5 +214,3 @@ CONFIG_MAP = {
 def get_config() -> Config:
     env = os.environ.get("FLASK_ENV", "development")
     return CONFIG_MAP.get(env, DevelopmentConfig)
-EOF
-
