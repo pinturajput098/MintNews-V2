@@ -100,4 +100,3 @@ marshmallow>=3.21.3
 pydantic>=2.7.4
 python-dotenv>=1.0.0
 
-eventlet>=0.33.3
