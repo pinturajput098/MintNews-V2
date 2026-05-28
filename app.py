@@ -103,7 +103,7 @@ def _init_extensions(app: Flask):
     socketio.init_app(
         app,
         cors_allowed_origins="*",
-        async_mode="eventlet",
+        async_mode='threading',
         message_queue=app.config.get("REDIS_URL", None),
         logger=False,
         engineio_logger=False,
