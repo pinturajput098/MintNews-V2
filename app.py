@@ -35,7 +35,7 @@ login_mgr = LoginManager()
 mail     = Mail()
 limiter  = Limiter(key_func=get_remote_address)
 cache    = Cache()
-socketio = SocketIO(async_mode='threading')
+socketio = SocketIO()
 cors     = CORS()
 
 
