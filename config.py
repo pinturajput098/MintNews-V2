@@ -4,6 +4,13 @@ Supports: Development | Staging | Production
 """
 
 import os
+# Auto-fix for Render PostgreSQL URL format
+import os
+db_uri = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
+if db_uri.startswith('postgres://'):
+    db_uri = db_uri.replace('postgres://', 'postgresql://', 1)
+os.environ['DATABASE_URL'] = db_uri
+
 from datetime import timedelta
 from dotenv import load_dotenv
 
