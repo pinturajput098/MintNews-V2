@@ -1,4 +1,3 @@
-cat << 'EOF' > app.py
 """
 MintNews Network V3 — Application Factory
 app.py — Master entrypoint with all module registrations
