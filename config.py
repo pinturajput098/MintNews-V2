@@ -1,4 +1,3 @@
-cat << 'EOF' > config.py
 """
 MintNews Network V3 — Master Configuration
 Supports: Development | Staging | Production
