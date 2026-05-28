@@ -1,5 +1,5 @@
 # ============================================================
-# MintNews Network V3 — Render Optimized Dependencies
+# MintNews Network V3 — Render Multi-Threaded Optimized
 # ============================================================
 
 # Core Framework
@@ -82,10 +82,8 @@ prometheus-client==0.20.0
 psutil==6.0.0
 loguru==0.7.2
 
-# Deployment (Relaxed Constraints for Pre-compiled Wheels)
-gunicorn>=22.0.0
-gevent>=23.9.1
-eventlet>=0.36.1
+# Deployment (Pure Binary — No Compiler Needed)
+gunicorn==22.0.0
 
 # Utilities
 python-slugify==8.0.4
