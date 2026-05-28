@@ -356,7 +356,17 @@ def create_celery(app: Flask = None):
 # ──────────────────────────────────────────────────────────────
 # ENTRY POINT
 # ──────────────────────────────────────────────────────────────
-app = create_app()
+
+print('>>> [DEBUG] Starting create_app()...', flush=True)
+try:
+    app = create_app()
+    print('>>> [DEBUG] create_app() completed successfully!', flush=True)
+except Exception as e:
+    import traceback
+    print('>>> [CRITICAL ERROR] DURING create_app():', flush=True)
+    print(traceback.format_exc(), flush=True)
+    raise e
+
 
 if __name__ == "__main__":
     app = create_app()
