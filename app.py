@@ -356,6 +356,8 @@ def create_celery(app: Flask = None):
 # ──────────────────────────────────────────────────────────────
 # ENTRY POINT
 # ──────────────────────────────────────────────────────────────
+app = create_app()
+
 if __name__ == "__main__":
     app = create_app()
     port = int(os.environ.get("PORT", 5000))
