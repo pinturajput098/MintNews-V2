@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 """
 MintNews Network V3 — Application Factory
 app.py — Master entrypoint with all module registrations
