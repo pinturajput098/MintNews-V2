@@ -132,7 +132,7 @@ def _init_extensions(app: Flask):
 # ──────────────────────────────────────────────────────────────
 def _register_blueprints(app: Flask):
     # Core / Public
-    from modules.core.routes       import core_bp
+    from core_routes import core_bp
     from modules.auth.routes       import auth_bp
     from modules.news.routes       import news_bp
     from modules.trading.routes    import trading_bp
