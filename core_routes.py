@@ -516,5 +516,8 @@ def backtest():
 @login_required
 def trading_arena():
     competitions = TradingCompetition.query.filter_by(is_active=True).all()
-    active_comp  = TradingCompetition.query.filter(
-        TradingCompetition.is_activ
+    active_comp = TradingCompetition.query.filter_by(is_active=True).first()
+    try:
+        return render_template('arena.html', competitions=competitions, active_comp=active_comp)
+    except:
+        return 'Arena Live'
