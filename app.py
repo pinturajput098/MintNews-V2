@@ -18,6 +18,10 @@ def create_app():
     jwt.init_app(app)
     limiter.init_app(app)
 
+    # 🟢 FORCE TABLE CREATION: Database check context if tables are missing
+    with app.app_context():
+        db.create_all()
+
     from routes.auth import auth_bp
     from routes.trading import trading_bp
     from routes.ai_nexus import ai_bp
