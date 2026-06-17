@@ -6,37 +6,45 @@ import os
 
 ai_bp = Blueprint('ai_bp', __name__)
 
-def query_huggingface_engine(messages, temperature=0.7):
-    """Queries Hugging Face Serverless Inference API using pure stable OpenAI compatible layouts"""
-    api_key = os.environ.get('HF_API_KEY')
+def query_gemini_bulletproof(prompt):
+    """Queries Google Gemini API directly via pure HTTP requests bypassing all proxy blocks"""
+    # First priority: GEMINI_API_KEY variable from Render settings
+    api_key = os.environ.get('GEMINI_API_KEY')
     if not api_key:
-        return {"error": "HF_API_KEY is missing in Render environment variables settings."}
+        return {"error": "GEMINI_API_KEY is missing in Render Environment Settings."}
 
-    # Using ultra-stable high-performance free model node
-    url = "https://api-inference.huggingface.co/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+    # 🔒 Force bypass any broken Render internal network proxies
+    no_proxies = {
+        "http": None,
+        "https": None
     }
+
+    # Official Google Core Global Endpoint (100% DNS Uptime)
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    
     payload = {
-        "model": "Qwen/Qwen2.5-7B-Instruct",
-        "messages": messages,
-        "max_tokens": 600,
-        "temperature": temperature
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }],
+        "generationConfig": {
+            "temperature": 0.5,
+            "maxOutputTokens": 800
+        }
     }
 
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=15)
+        response = requests.post(url, json=payload, proxies=no_proxies, timeout=15)
         res_data = response.json()
         
-        if 'choices' in res_data and len(res_data['choices']) > 0:
-            return {"success": True, "text": res_data['choices'][0]['message']['content']}
+        if 'candidates' in res_data and len(res_data['candidates']) > 0:
+            text = res_data['candidates'][0]['content']['parts'][0]['text']
+            return {"success": True, "text": text}
         elif 'error' in res_data:
-            return {"error": res_data['error']}
+            return {"error": res_data['error'].get('message', str(res_data))}
         else:
-            return {"error": f"API structural variance logged: {str(res_data)}"}
+            return {"error": f"Unexpected structural response: {str(res_data)}"}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"Google Core Gateway Connection Timeout: {str(e)}"}
 
 @ai_bp.route('/process-article', methods=['POST'])
 def process_article():
@@ -47,16 +55,15 @@ def process_article():
     
     article = NewsArticle.query.get(int(article_id))
     if not article:
-        return jsonify({'result': 'Error: Target article data sequence missing.'})
+        return jsonify({'result': 'Error: Target article index missing.'})
 
-    prompt = f"Perform operation '{operation_type}' on this news article text. Respond extensively in fluid {target_lang}. News Content: {article.content}"
-    messages = [{"role": "user", "content": prompt}]
+    prompt = f"Perform operation '{operation_type}' on this news article text. Respond extensively and beautifully in fluid {target_lang}. Content: {article.content}"
     
-    result = query_huggingface_engine(messages, temperature=0.5)
+    result = query_gemini_bulletproof(prompt)
     if "success" in result:
         return jsonify({'status': 'success', 'result': result["text"]})
     else:
-        return jsonify({'result': f"HuggingFace Engine Error: {result['error']}"})
+        return jsonify({'result': f"Gemini Direct Error: {result['error']}"})
 
 @ai_bp.route('/jarvis-chat', methods=['POST'])
 def jarvis_chat():
@@ -64,15 +71,12 @@ def jarvis_chat():
     user_prompt = data.get('prompt', '')
     
     if not user_prompt:
-        return jsonify({'response': 'Prompt content stream unassigned.'})
+        return jsonify({'response': 'Prompt query cannot be empty.'})
 
-    messages = [
-        {"role": "system", "content": "You are Jarvis, the system core AI intelligence node of MintNews V4. Help the user natively in conversational smooth Hinglish."},
-        {"role": "user", "content": user_prompt}
-    ]
+    prompt = f"You are Jarvis, the highly advanced system core AI of MintNews V4. Help the user with an analytical response natively in conversational Hinglish. User prompt: {user_prompt}"
     
-    result = query_huggingface_engine(messages, temperature=0.7)
+    result = query_gemini_bulletproof(prompt)
     if "success" in result:
         return jsonify({'response': result["text"]})
     else:
-        return jsonify({'response': f"Jarvis Routing Error: {result['error']}"})
+        return jsonify({'response': f"Jarvis Native Error: {result['error']}"})
