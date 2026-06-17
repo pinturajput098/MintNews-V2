@@ -17,16 +17,20 @@ def process_article():
     if not article:
         return jsonify({'result': 'Error: Target article not found in database.'})
 
-    # 🌐 PURE ENVIRONMENT READ: No hardcoded or split keys, exactly as you suggested!
     api_key = os.environ.get('GROQ')
     if not api_key:
-        return jsonify({'result': 'Error: GROQ API Key missing in Render Environment Variables. Please add a variable named GROQ in Render Dashboard Settings.'})
+        return jsonify({'result': 'Error: GROQ API Key missing in Render Environment Settings.'})
 
     try:
+        # 🛑 FIX: Clear Render's internal hidden proxies to prevent client init crashes
+        os.environ.pop('HTTP_PROXY', None)
+        os.environ.pop('HTTPS_PROXY', None)
+        os.environ.pop('http_proxy', None)
+        os.environ.pop('https_proxy', None)
+
         client = Groq(api_key=api_key)
         prompt = f"Perform operation '{operation_type}' on this news content. Respond comprehensively in {target_lang}. Content: {article.content}"
         
-        # Safe fallback chain to prevent any downtime
         models_pool = ["llama-3.3-70b-versatile", "llama3-70b-8192"]
         ai_response = None
         last_err = ""
@@ -65,6 +69,12 @@ def jarvis_chat():
         return jsonify({'response': 'Error: GROQ variable missing on Render settings.'})
 
     try:
+        # 🛑 FIX: Clear proxies for Jarvis console too
+        os.environ.pop('HTTP_PROXY', None)
+        os.environ.pop('HTTPS_PROXY', None)
+        os.environ.pop('http_proxy', None)
+        os.environ.pop('https_proxy', None)
+
         client = Groq(api_key=api_key)
         chat_completion = client.chat.completions.create(
             messages=[
