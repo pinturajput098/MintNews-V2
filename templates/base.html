@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MINTNEWS TERMINAL V4</title>
+    <title>MINTNEWS CONTROL HUB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
-                extend: {
-                    colors: { richnavy: '#0B0F19', charcoalblack: '#070A12', cyberpurple: '#6366F1', neonmint: '#10B981', radiantcyan: '#06B6D4', softwhite: '#E5E5E5' }
-                }
+                extend: { colors: { richnavy: '#0B0F19', charcoalblack: '#070A12', cyberpurple: '#6366F1', neonmint: '#10B981', radiantcyan: '#06B6D4', softwhite: '#E5E5E5' } }
             }
         }
     </script>
@@ -18,43 +16,42 @@
 </head>
 <body class="h-full bg-richnavy text-softwhite flex flex-col overflow-hidden select-none">
 
-    <!-- TOP HEADER CONTROL HUB -->
-    <header class="bg-charcoalblack/90 border-b border-slate-900 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+    <!-- PLATFORM MAIN HEADER CONTROL BAR -->
+    <header class="bg-charcoalblack border-b border-slate-900 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div class="flex items-center space-x-3">
             <button onclick="toggleDrawer()" class="p-2 bg-slate-900 rounded-lg text-cyberpurple font-bold">☰</button>
             <span class="font-mono font-black text-xs tracking-widest text-white">MINTNEWS // <span class="text-cyberpurple">V4</span></span>
         </div>
-        <span id="global-badge-tier" class="text-[9px] font-mono font-bold px-2 py-0.5 bg-zinc-900 rounded text-neonmint uppercase">FREE ENGINE</span>
+        <span id="global-badge-tier" class="text-[9px] font-mono font-bold px-2 py-0.5 bg-zinc-900 rounded text-neonmint uppercase">FREE ACCELERATOR</span>
     </header>
 
-    <!-- LEFT DRAWER OVERLAY PANEL -->
+    <!-- SLIDING CHANNELS MANAGEMENT OVERLAY DRAWER -->
     <div id="drawer" class="fixed inset-0 z-50 bg-black/70 hidden">
         <div class="w-64 h-full bg-charcoalblack border-r border-slate-900 p-6 flex flex-col space-y-4">
             <div class="flex items-center justify-between border-b border-slate-900 pb-2">
-                <span class="font-mono text-xs font-bold text-zinc-400">CHANNELS</span>
+                <span class="font-mono text-xs font-bold text-zinc-400">EXPLORE NETWORKS</span>
                 <button onclick="toggleDrawer()" class="text-zinc-500 font-mono text-xs">✕</button>
             </div>
             {% for cat in categories %}
-            <a href="/?category={{ '' if cat == 'All' else cat }}" class="px-3 py-2 rounded-xl font-mono text-xs uppercase text-zinc-400 hover:bg-cyberpurple/10 block {% if current_category == cat %} bg-cyberpurple/20 text-white font-bold {% endif %}">📂 {{ cat }}</a>
+            <a href="/?category={{ '' if cat == 'All' else cat }}" class="px-3 py-2 rounded-xl font-mono text-xs uppercase text-zinc-400 hover:bg-cyberpurple/10 block {% if current_category == cat %} bg-cyberpurple/20 text-white font-bold {% endif %}">📂 {{ cat }} News</a>
             {% endfor %}
         </div>
     </div>
 
-    <!-- MAIN FRAME PLATFORM ENGINE CONTAINER -->
+    <!-- MAIN INTERACTIVE STREAM CHANNELS MODULES VIEWPORT -->
     <main class="flex-1 overflow-y-auto pb-24 p-4 max-w-xl w-full mx-auto" id="viewport">
         
-        <!-- 🏠 VIEW 1: DISCRETE INTERACTIVE NEWS REPOSITORY MATRIX -->
+        <!-- 🏠 INTERACTIVE VIEW 1: INFINITE NEWS NETWORKS SYSTEM BLUEPRINT -->
         <section id="view-home" class="space-y-4">
             {% if articles %}
                 {% for article in articles %}
-                <div class="bg-charcoalblack border border-slate-900 rounded-2xl overflow-hidden shadow-xl space-y-3 p-4">
+                <div class="bg-charcoalblack border border-slate-900 rounded-2xl overflow-hidden shadow-xl p-4 space-y-3">
                     {% if article.image_url %}
-                    <!-- 🖼️ DYNAMIC IMAGE INJECTION CARDS LAYER -->
-                    <img src="{{ article.image_url }}" class="w-full h-36 object-cover rounded-xl border border-slate-900 mb-2" alt="Telemetry Target Frame Graphic">
+                    <img src="{{ article.image_url }}" class="w-full h-40 object-cover rounded-xl border border-slate-900" alt="Dynamic Feeds Matrix Graphics Layer Asset">
                     {% endif %}
-                    <div class="flex justify-between text-[9px] font-mono"><span class="text-radiantcyan bg-radiantcyan/10 px-2 py-0.5 rounded border border-radiantcyan/20 uppercase font-bold">✨ {{ article.category }}</span></div>
+                    <div class="flex justify-between text-[9px] font-mono"><span class="text-radiantcyan bg-radiantcyan/10 px-2 py-0.5 rounded border border-radiantcyan/20 uppercase font-bold">⚡ {{ article.category }}</span></div>
                     <h3 class="text-xs font-bold text-white leading-snug">{{ article.title }}</h3>
-                    <p class="text-zinc-400 text-[11px] line-clamp-3 leading-relaxed">{{ article.content }}</p>
+                    <p class="text-zinc-400 text-[11px] leading-relaxed line-clamp-3 font-normal">{{ article.content }}</p>
                     <div class="grid grid-cols-3 gap-1 pt-2 border-t border-slate-900/60">
                         <button onclick="runAI({{ article.id }}, 'summary')" class="py-2 bg-slate-900 rounded-xl text-[9px] font-mono font-bold uppercase text-zinc-300">📝 Summary</button>
                         <button onclick="runAI({{ article.id }}, 'detailed')" class="py-2 bg-slate-900 rounded-xl text-[9px] font-mono font-bold uppercase text-zinc-300">📊 Detailed</button>
@@ -63,47 +60,69 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="p-12 text-center font-mono text-xs text-zinc-600 uppercase">Telemetry stream empty.</div>
+                <div class="p-12 text-center font-mono text-xs text-zinc-600 uppercase">Telemetry list unassigned. Query alternative arrays.</div>
             {% endif %}
         </section>
 
-        <!-- 💰 VIEW 2: ACCOUNT WALLET SYSTEM NODES -->
+        <!-- 💰 INTERACTIVE VIEW 2: FULL WALLET ACCOUNT MANAGEMENT FRAMEWORK -->
         <section id="view-wallet" class="hidden space-y-4">
-            <div class="bg-gradient-to-br from-slate-900 to-charcoalblack border border-slate-800 rounded-2xl p-6 text-center space-y-2">
-                <h2 class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Aggregated Ad Balance</h2>
+            <div class="bg-gradient-to-br from-slate-900 to-charcoalblack border border-slate-800 rounded-2xl p-6 text-center space-y-2 shadow-2xl">
+                <h2 class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Aggregated Account Balance</h2>
                 <p class="text-4xl font-mono font-black text-neonmint" id="balance">00</p>
-                <p class="text-[9px] font-mono text-zinc-500" id="lock-timer-string">DAILY CAP LIMIT CHECK PASS ACTIVE</p>
+                <p class="text-[9px] font-mono text-zinc-500 uppercase tracking-tighter" id="lock-timer-string">DAILY CAP LIMIT BRACKET: PASS VALIDAITON STANDING ACTIVE</p>
             </div>
-            <button onclick="watchAdAction()" class="w-full py-3 bg-cyberpurple text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg">📺 Open Video Stream Monetization Target</button>
-            <div class="grid grid-cols-2 gap-2 text-center font-mono text-[10px]">
-                <div onclick="claimSub(1)" class="bg-slate-900 border border-slate-800 p-3 rounded-xl cursor-pointer">1 Day (10 Credits)</div>
-                <div onclick="claimSub(3)" class="bg-slate-900 border border-slate-800 p-3 rounded-xl cursor-pointer">3 Days (27 Credits)</div>
+            
+            <!-- 📻 BUTTON ENGINE EQUIPPED WITH CLIENT 10-SECOND REVERSE LOCK LOGIC -->
+            <button id="ad-trigger-button-node" onclick="initiateSecureAdPipeline()" class="w-full py-3.5 bg-cyberpurple text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-cyberpurple/10 flex items-center justify-center space-x-2">
+                <span>📺</span> <span id="ad-btn-text-node">Open Video Stream Monetization Target</span>
+            </button>
+            
+            <!-- 💳 COMPLETE SUBSCRIPTION ALLOCATION PACKAGES MATRIX COMPONENT -->
+            <div class="space-y-2 pt-2">
+                <h4 class="text-[9px] font-mono tracking-widest text-zinc-500 uppercase px-1">Available Premium Tiers</h4>
+                <div class="grid grid-cols-2 gap-2 text-left font-mono text-[10px]">
+                    <div onclick="claimSub(1)" class="bg-slate-900/80 border border-slate-850 hover:border-cyberpurple p-3.5 rounded-xl cursor-pointer transition-all flex flex-col justify-between">
+                        <span class="text-white font-bold uppercase">1 Day Access</span>
+                        <span class="text-neonmint mt-2 font-bold">10 Credits</span>
+                    </div>
+                    <div onclick="claimSub(3)" class="bg-slate-900/80 border border-slate-850 hover:border-cyberpurple p-3.5 rounded-xl cursor-pointer transition-all flex flex-col justify-between">
+                        <span class="text-white font-bold uppercase">3 Days Access</span>
+                        <span class="text-neonmint mt-2 font-bold">27 Credits</span>
+                    </div>
+                    <div onclick="claimSub(7)" class="bg-slate-900/80 border border-slate-850 hover:border-cyberpurple p-3.5 rounded-xl cursor-pointer transition-all flex flex-col justify-between">
+                        <span class="text-white font-bold uppercase">7 Days Access</span>
+                        <span class="text-neonmint mt-2 font-bold">60 Credits</span>
+                    </div>
+                    <div onclick="claimSub(28)" class="bg-slate-900/80 border border-slate-850 hover:border-cyberpurple p-3.5 rounded-xl cursor-pointer transition-all flex flex-col justify-between">
+                        <span class="text-white font-bold uppercase">28 Days Access</span>
+                        <span class="text-neonmint mt-2 font-bold">250 Credits</span>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- 🔍 VIEW 3: LIVE OPERATIONAL VECTOR SEARCH SYSTEM -->
+        <!-- 🔍 INTERACTIVE VIEW 3: SYSTEM VARIABLE SEARCH COMPONENT -->
         <section id="view-search" class="hidden space-y-4">
-            <div class="bg-charcoalblack border border-slate-900 p-4 rounded-2xl space-y-3">
+            <div class="bg-charcoalblack border border-slate-900 p-4 rounded-2xl space-y-3 shadow-xl">
                 <h3 class="text-xs font-mono font-bold tracking-wider text-zinc-400 uppercase">Engine Lookup Terminal</h3>
-                <!-- 🔍 INTEGRATED DIRECT CAPTURE FORM CONTROLS FOR SEARCH STRINGS -->
-                <input id="search-input" type="text" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-3 text-xs font-mono text-zinc-200 focus:outline-none" placeholder="Type query keyword and hit enter...">
-                <button onclick="executeSearchQuery()" class="w-full py-2 bg-cyberpurple text-white font-mono text-xs uppercase tracking-wider rounded-xl">Execute Lookup Sequence</button>
+                <input id="search-input" type="text" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-3 text-xs font-mono text-zinc-200 focus:outline-none focus:border-cyberpurple placeholder-zinc-700" placeholder="Type query keyword strings...">
+                <button onclick="executeSearchQuery()" class="w-full py-2.5 bg-cyberpurple text-white font-mono text-xs uppercase tracking-wider rounded-xl transition-all">Execute Lookup Sequence</button>
             </div>
         </section>
 
-        <!-- 🤖 VIEW 4: DYNAMIC MULTILINGUAL CONSOLE (JARVIS CHAT NODE) -->
-        <section id="view-ai" class="hidden flex flex-col h-[65vh] bg-charcoalblack border border-slate-900 rounded-2xl overflow-hidden">
+        <!-- 🤖 INTERACTIVE VIEW 4: PLATFORM CENTRAL INTELLIGENCE TERMINAL (JARVIS CHAT NODE) -->
+        <section id="view-ai" class="hidden flex flex-col h-[65vh] bg-charcoalblack border border-slate-900 rounded-2xl overflow-hidden shadow-2xl">
             <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-2 font-mono text-[11px] text-zinc-400">
-                <div class="bg-slate-900/60 p-2.5 rounded-lg max-w-[85%]">Jarvis: V4 System engine synchronized. Speak with me in any language (Hindi, English, Hinglish).</div>
+                <div class="bg-slate-900/60 p-2.5 rounded-lg max-w-[85%]">Jarvis: V4 Cognitive core system online. Converse comfortably across multi-language frameworks.</div>
             </div>
             <div class="p-2 bg-slate-950 border-t border-slate-900 flex space-x-1">
-                <input id="chat-input" type="text" class="flex-1 bg-black text-xs p-2 rounded-xl focus:outline-none border border-zinc-800 text-white" placeholder="Ask Jarvis metrics setups...">
-                <button onclick="sendChat()" class="bg-cyberpurple text-[10px] font-mono px-3 rounded-xl font-bold">SEND</button>
+                <input id="chat-input" type="text" class="flex-1 bg-black text-xs p-3 rounded-xl focus:outline-none border border-zinc-850 text-white placeholder-zinc-700" placeholder="Ask Jarvis metrics setups...">
+                <button onclick="sendChat()" class="bg-cyberpurple text-[10px] font-mono px-4 rounded-xl font-bold uppercase tracking-wider text-white">SEND</button>
             </div>
         </section>
     </main>
 
-    <!-- FULL PAGE SLIDING MODAL INTERACTIVE AI CONSOLE -->
+    <!-- FULL PAGE MODAL COMPONENT WINDOW MATRIX INTERFACE FOR GEN-AI CONTENT LAYERS -->
     <div id="ai-modal" class="fixed inset-0 bg-richnavy z-50 hidden flex-col overflow-hidden">
         <header class="bg-charcoalblack px-4 py-3 border-b border-slate-900 flex items-center justify-between">
             <span class="text-[9px] font-mono font-bold text-cyberpurple bg-cyberpurple/10 px-2 py-0.5 rounded uppercase" id="modal-op">PROCESSING NODE</span>
@@ -115,11 +134,11 @@
             <button onclick="changeLang('Hinglish')" id="l-Hinglish">Hinglish</button>
         </div>
         <div class="flex-1 overflow-y-auto p-4 max-w-xl w-full mx-auto">
-            <div class="bg-charcoalblack border border-slate-900 rounded-xl p-4 min-h-[200px] font-mono text-xs text-zinc-300 leading-relaxed whitespace-pre-line" id="modal-text">Payload active.</div>
+            <div class="bg-charcoalblack border border-slate-900 rounded-xl p-4 min-h-[200px] font-mono text-xs text-zinc-300 leading-relaxed whitespace-pre-line select-text" id="modal-text">Payload active.</div>
         </div>
     </div>
 
-    <!-- PERSISTENT CORE FOOTER APP-SHELL DOCK INTERFACE BAR -->
+    <!-- INSTAGRAM STYLE CORE BOTTOM APP SHELL FOOTER NAVIGATION BAR ICON TILES -->
     <footer class="fixed bottom-0 left-0 right-0 z-40 bg-charcoalblack border-t border-slate-900 py-1.5 flex items-center justify-around shadow-2xl">
         <button onclick="switchTab('home')" id="tab-home" class="flex flex-col items-center py-1 px-3 text-zinc-500 text-[10px] font-mono font-bold uppercase active-tab"><span>🏠</span><span>Home</span></button>
         <button onclick="switchTab('wallet')" id="tab-wallet" class="flex flex-col items-center py-1 px-3 text-zinc-500 text-[10px] font-mono font-bold uppercase"><span>💳</span><span>Wallet</span></button>
@@ -139,39 +158,59 @@
             document.getElementById(`tab-${t}`).classList.add('active-tab');
         }
 
-        function toggleDrawer() {
-            const d = document.getElementById('drawer');
-            d.classList.toggle('hidden');
-        }
+        function toggleDrawer() { document.getElementById('drawer').classList.toggle('hidden'); }
 
-        // 🔍 LIVE SEARCH ACTION EXECUTER IMPLEMENTATION BLOCK
         function executeSearchQuery() {
             const queryValue = document.getElementById('search-input').value.trim();
-            if(queryValue) {
-                window.location.href = `/?q=${encodeURIComponent(queryValue)}`;
-            }
+            if(queryValue) { window.location.href = `/?q=${encodeURIComponent(queryValue)}`; }
         }
-        
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if(e.key === 'Enter') executeSearchQuery();
-        });
+        document.getElementById('search-input').addEventListener('keypress', function(e) { if(e.key === 'Enter') executeSearchQuery(); });
 
-        // 📺 REAL TIME AD TRANS-LOGIC ACCOUNTING MECHANICS LOGS INTERFACE
-        function watchAdAction() {
+        // ⏱️ CLIENT AND SERVER COMBINED 10 SECONDS AD WATCH COUNTDOWN ENGINE
+        defuse_timer_lock = false;
+        function initiateSecureAdPipeline() {
+            if(defuse_timer_lock) return;
+            
             window.open("https://omg10.com/4/11162641", "_blank");
+            
+            let countdown = 10;
+            defuse_timer_lock = true;
+            const btn = document.getElementById('ad-trigger-button-node');
+            const txt = document.getElementById('ad-btn-text-node');
+            
+            btn.className = "w-full py-3.5 bg-zinc-800 text-zinc-500 font-mono font-bold text-xs uppercase tracking-widest rounded-xl cursor-not-allowed flex items-center justify-center space-x-2";
+            
+            let ticker = setInterval(() => {
+                countdown--;
+                txt.innerText = `STREAM VALIDATING IN ... ${countdown}S`;
+                if(countdown <= 0) {
+                    clearInterval(ticker);
+                    dispatchAdCreditPayload();
+                }
+            }, 1000);
+        }
+
+        function dispatchAdCreditPayload() {
             fetch('/api/wallet/watch-ad', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
             .then(res => {
+                // Reset structural state tokens
+                defuse_timer_lock = false;
+                const btn = document.getElementById('ad-trigger-button-node');
+                const txt = document.getElementById('ad-btn-text-node');
+                btn.className = "w-full py-3.5 bg-cyberpurple text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-cyberpurple/10 flex items-center justify-center space-x-2";
+                txt.innerText = "Open Video Stream Monetization Target";
+
                 if(res.status === 403) {
-                    return res.json().then(data => { alert(`🛑 Security Alert:\n\n${data.message}`); });
+                    return res.json().then(data => { alert(`🛑 Security daily barrier block active:\n\n${data.message}`); });
                 }
                 return res.json().then(data => {
                     if(data.current_credits !== undefined) {
                         document.getElementById('balance').innerText = String(data.current_credits).padStart(2, '0');
                         document.getElementById('lock-timer-string').innerText = `WATCHED TODAY: ${data.daily_count}/10 ADS`;
-                        alert(`✅ Ad Verified! 1 Credit Added. (${data.remaining_ads} ads left today before security lock)`);
+                        alert("✅ Tracking confirmation verified successfully! 1 Credit aggregated.");
                     }
                 });
-            }).catch(err => console.error(err));
+            }).catch(err => { defuse_timer_lock = false; console.error(err); });
         }
 
         function claimSub(p) {
@@ -179,9 +218,9 @@
             .then(res => res.json()).then(data => {
                 if(data.premium_active) {
                     document.getElementById('balance').innerText = String(data.wallet_remaining_credits).padStart(2, '0');
-                    document.getElementById('global-badge-tier').innerText = "PREMIUM ACTIVE";
-                    alert("🎉 Premium tier activated successfully!");
-                } else { alert("🔴 Insufficient credit matrix balance pool."); }
+                    document.getElementById('global-badge-tier').innerText = "PREMIUM CORE ACTIVE";
+                    alert("🎉 Premium unlocked successfully!");
+                } else { alert("🔴 Transaction failed: Insufficient credit balances."); }
             });
         }
 
@@ -190,7 +229,7 @@
             document.getElementById('modal-op').innerText = op.toUpperCase();
             document.getElementById('ai-modal').classList.remove('hidden');
             document.getElementById('ai-modal').classList.add('flex');
-            document.getElementById('modal-text').innerText = "🔄 Querying active Groq V4 system matrix pipelines...";
+            document.getElementById('modal-text').innerText = "🔄 Initializing high-speed secure inference arrays with Groq llama-3.3-70b...";
             
             fetch('/api/ai/process-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ article_id: id, operation: op, language: activeLang }) })
             .then(res => res.json()).then(data => { document.getElementById('modal-text').innerText = data.result || data.error; });
@@ -211,7 +250,8 @@
             box.innerHTML += `<div class="bg-cyberpurple/20 p-2 rounded-lg max-w-[85%] ml-auto text-right text-white">User: ${txt}</div>`;
             input.value = "";
             
-            fetch('/api/api/ai/jarvis-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: txt }) })
+            // Fixed double prefix bug trajectory perfectly
+            fetch('/api/ai/jarvis-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: txt }) })
             .then(res => res.json()).then(data => {
                 box.innerHTML += `<div class="bg-slate-900/60 p-2.5 rounded-lg max-w-[85%] text-zinc-200">Jarvis: ${data.response || data.error}</div>`;
                 box.scrollTop = box.scrollHeight;

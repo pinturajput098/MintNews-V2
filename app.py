@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 from flask import Flask, jsonify, render_template, request
 from extensions import db, socketio, jwt, limiter
 from datetime import datetime, timedelta
@@ -30,9 +31,10 @@ def create_app():
         db.create_all()
         
         from models import NewsArticle
-        # 🚀 SEEDER ENGINE OVERHAUL: GENERATES 100+ COGNITIVE STREAMS ACROSS ALL DISCRETE SECTIONS
+        # Force a database flush if records are duplicate or less than 100
         if NewsArticle.query.count() < 100:
-            NewsArticle.query.delete() # Wipe clean for structural refresh
+            NewsArticle.query.delete()
+            db.session.commit()
             
             categories_pool = ["General", "Forex", "Crypto", "Tech", "World"]
             image_pool = {
@@ -43,41 +45,56 @@ def create_app():
                 "World": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&auto=format&fit=crop"
             }
             
-            titles_dict = {
-                "General": ["Global Logistics Supply Chains Realignment Index Matrix", "Macroeconomic Shifts in Emerging Market Consumer Indicators"],
-                "Forex": ["Federal Reserves Policy Adjustments Triggers Breakouts", "EURUSD Orderblock Convergence Near Key Liquidity Pool"],
-                "Crypto": ["Bitcoin Whale Liquidation Sweeps Map Triggers Rally", "Ethereum Layer 2 Protocol Integration Speeds Telemetry"],
-                "Tech": ["Asynchronous Compute Engines Scale Large Language Models", "Quantum Cryptography Keys Bypass Traditional Security Guards"],
-                "World": ["Climate Resiliency Pacts Ratified in Global Summit Forum", "Geopolitical Energy Distribution Networks Re-Mapped Securely"]
+            # Combinatorial matrices to generate 100% distinct titles
+            subjects = {
+                "General": ["Global Market Index", "Inflation Telemetry", "Supply Chain Route", "Retail Core Metrics", "Trade Volume Settlement"],
+                "Forex": ["EURUSD Orderblock", "GBPUSD Liquidity Sweep", "USDJPY Pivot Zone", "XAUUSD Major Resistance", "DXY Trend Line Break"],
+                "Crypto": ["Bitcoin Whale Wallet", "Ethereum Layer-3 Scaling", "Solana Liquidation Map", "DeFi Core Protocol Run", "On-Chain Analytics Volume"],
+                "Tech": ["Asynchronous LLM Processing", "Groq Hardware Accelerator", "Quantum Compute Matrix", "Stealth Neural Nodes", "Silicon Processing Node"],
+                "World": ["Geopolitical Energy Supply", "Macro Sovereign Agreements", "Maritime Trade Route Corridors", "Cross-Border Settlement Standard", "Infrastructure Liquidity"]
             }
+            
+            actions = ["Surges Unexpectedly", "Collapses Near Local Demand", "Triggers Massive Volatility", "Stabilizes Inside Consolidation Triangle", "Breaks Multi-Year High Pattern"]
+            contexts = ["Due to Sudden Institutional Order Matching.", "As Quantitative Trading Algorithms Activate Automatically.", "Spur-of-the-Moment Capital Rotation Triggers Outflow.", "Market Depth Analytics Registers Unusual Volume Spikes.", "Following High-Frequency Central Bank Policy Liquidity Swaps."]
 
             counter = 1
+            time_tracker = datetime.utcnow()
+            
             for cat in categories_pool:
-                for i in range(25): # Injects 25 articles per section cleanly = 125 Total database assets
-                    title_string = f"{titles_dict[cat][i % 2]} Alpha Series Node {counter}"
+                for idx in range(22): # 22 * 5 categories = 110 unique articles injected seamlessly
+                    sub = random.choice(subjects[cat])
+                    act = random.choice(actions)
+                    ctx = random.choice(contexts)
+                    
+                    generated_title = f"{sub} {act} (Node Array-Alpha #{counter})"
+                    generated_content = f"Deep technical intelligence monitoring stream logs regarding {generated_title}. {ctx} Risk managers suggest close oversight on high-liquidity zones as algorithmic execution nodes execute trade optimization directives across major network execution channels."
+                    
+                    # Deduct exactly 1 minute sequentially per record to simulate clean history stream timeline
+                    creation_timestamp = time_tracker - timedelta(minutes=counter)
+                    
                     article = NewsArticle(
-                        title=title_string,
-                        slug=f"article-telemetry-reference-slug-{counter}",
-                        content=f"Deep analytical structural tracing logs for {title_string}. Enterprise monitoring nodes capture extreme variance metrics within baseline data parameters. Quantitative indicators imply systemic trends consolidation.",
+                        title=generated_title,
+                        slug=f"dynamic-v4-slug-mapping-telemetry-{counter}-{random.randint(1000,9999)}",
+                        content=generated_content,
                         category=cat,
                         image_url=image_pool[cat],
-                        original_source="Enterprise Central V4 Terminal Engine"
+                        original_source="MintNews V4 Terminal Core",
+                        created_at=creation_timestamp
                     )
                     db.session.add(article)
                     counter += 1
             db.session.commit()
+            print("--- ✅ SUCCESS: 110 unique dynamic news items initialized seamlessly at 1m gaps ---")
 
     @app.route('/')
     def index():
         from models import NewsArticle
         category_filter = request.args.get('category')
-        search_query = request.args.get('q') # 🔍 SQL LIVE INPUT MATRIX HANDLER
+        search_query = request.args.get('q')
 
         query = NewsArticle.query
-        
         if category_filter and category_filter != "All":
             query = query.filter_by(category=category_filter)
-            
         if search_query:
             query = query.filter(
                 db.or_(
