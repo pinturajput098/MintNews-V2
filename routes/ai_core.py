@@ -7,22 +7,25 @@ import os
 ai_bp = Blueprint('ai_bp', __name__)
 
 def query_openrouter_pool(prompt, system_instruction=None):
-    """Loops through currently active 100% free models on OpenRouter to guarantee execution"""
     api_key = os.environ.get('OPENROUTER_API_KEY')
     if not api_key:
-        return {"error": "OPENROUTER_API_KEY missing in Render settings variable matrix."}
+        return {"error": "OPENROUTER_API_KEY is missing in Render environment variables."}
 
-    # 🚀 POOL OF LIVE 100% FREE Tier OpenRouter Models
+    # 🚀 Active 100% Free Tier Models on OpenRouter
     free_models_pool = [
         "meta-llama/llama-3.1-8b-instruct:free",
         "google/gemma-2-9b-it:free",
-        "mistralai/mistral-7b-instruct:free"
+        "qwen/qwen-2-7b-instruct:free"
     ]
     
     url = "https://openrouter.ai/api/v1/chat/completions"
+    
+    # 🔒 FIX: Added mandatory identity headers to unlock OpenRouter free tier throttling
     headers = {
         "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://mintnews-v2.onrender.com",
+        "X-Title": "MintNews V4 Terminal"
     }
 
     messages = []
@@ -49,7 +52,7 @@ def query_openrouter_pool(prompt, system_instruction=None):
             last_error_log = str(e)
             continue
             
-    return {"error": f"All free engines busy. Trace log: {last_error_log}"}
+    return {"error": f"Identity clearance failed or limit hit. Logs: {last_error_log}"}
 
 @ai_bp.route('/process-article', methods=['POST'])
 def process_article():
@@ -60,9 +63,9 @@ def process_article():
     
     article = NewsArticle.query.get(int(article_id))
     if not article:
-        return jsonify({'result': 'Error: Article reference object missing.'})
+        return jsonify({'result': 'Error: News article node not found.'})
 
-    prompt = f"Execute operational analysis for '{operation_type}' on this news dataset. Respond comprehensively and strictly in {target_lang}. News Text: {article.content}"
+    prompt = f"Execute operation '{operation_type}' on this content. Respond completely in {target_lang}. Content: {article.content}"
     
     engine_result = query_openrouter_pool(prompt)
     if "success" in engine_result:
@@ -76,12 +79,12 @@ def jarvis_chat():
     user_prompt = data.get('prompt', '')
     
     if not user_prompt:
-        return jsonify({'response': 'Prompt stream input empty.'})
+        return jsonify({'response': 'Prompt stream cannot be empty.'})
 
-    system_instruction = "You are Jarvis, the direct operational artificial interface of MintNews V4 system core. Answer smartly and elegantly in natural fluid Hinglish."
+    system_instruction = "You are Jarvis, the system engine of MintNews V4. Respond smartly in conversational Hinglish."
     
     engine_result = query_openrouter_pool(user_prompt, system_instruction=system_instruction)
     if "success" in engine_result:
         return jsonify({'response': engine_result["text"]})
     else:
-        return jsonify({'response': f"Jarvis Routing Error: {engine_result['error']}"})
+        return jsonify({'response': f"Jarvis Error: {engine_result['error']}"})
