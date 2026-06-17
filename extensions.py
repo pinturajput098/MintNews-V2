@@ -5,15 +5,15 @@ from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-# Core plugins initialization without application binding context
+# Global instances initialized strictly isolated without application context
 db = SQLAlchemy()
 jwt = JWTManager()
 
-# Threading architecture handling native python fallback configuration cleanly
+# High performance cross-origin asynchronous architecture setup
 socketio = SocketIO(cors_allowed_origins="*", async_mode='threading')
 
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=["300 per day", "100 per hour"],
     storage_uri="memory://"
 )

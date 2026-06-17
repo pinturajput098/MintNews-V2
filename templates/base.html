@@ -1,134 +1,369 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-black text-zinc-100">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MINTNEWS NETWORK // V3 CORE</title>
+    <title>MINTNEWS NETWORK V4 // COGNITIVE TERMINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        stealthblack: '#080808',
-                        mattecarbon: '#111111',
-                        nikeorange: '#FF5A00',
-                        performancevolt: '#CCFF00'
+                        richnavy: '#0B0F19',
+                        charcoalblack: '#070A12',
+                        cyberpurple: '#6366F1',
+                        electricindigo: '#4F46E5',
+                        neonmint: '#10B981',
+                        radiantcyan: '#06B6D4',
+                        softwhite: '#E5E5E5',
+                        lightgray: '#F8F9FA',
+                        darktext: '#1A1A1A'
                     }
                 }
             }
         }
     </script>
     <style>
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #080808; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #FF5A00; }
+        .active-tab { color: #6366F1 !important; border-top: 2px solid #6366F1; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #070A12; }
+        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366F1; }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans antialiased selection:bg-nikeorange selection:text-white">
+<body class="h-full bg-richnavy text-softwhite flex flex-col overflow-hidden select-none transition-colors duration-300" id="body-context">
 
-    <!-- Premium Top Navigation Telemetry Console -->
-    <nav class="bg-stealthblack border-b border-zinc-900 px-6 py-4 flex items-center justify-between sticky top-0 z-50 backdrop-blur-md bg-opacity-80">
+    <!-- HEADER HUB & TOP TELEMETRY TRACKER -->
+    <header class="bg-charcoalblack/90 border-b border-slate-900 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
         <div class="flex items-center space-x-3">
-            <div class="w-2.5 h-2.5 rounded-full bg-nikeorange shadow-[0_0_10px_#FF5A00]"></div>
-            <span class="font-mono font-black text-sm tracking-tighter uppercase text-white">MINTNEWS // <span class="text-nikeorange">V3</span></span>
+            <button onclick="toggleCategoryDrawer()" class="p-2 hover:bg-slate-900 rounded-lg transition-colors focus:outline-none">
+                <div class="space-y-1.5 w-5">
+                    <span class="block h-0.5 w-5 bg-cyberpurple rounded"></span>
+                    <span class="block h-0.5 w-4 bg-neonmint rounded"></span>
+                    <span class="block h-0.5 w-5 bg-radiantcyan rounded"></span>
+                </div>
+            </button>
+            <span class="font-mono font-black text-xs tracking-widest uppercase text-white">MINTNEWS // <span class="text-cyberpurple">V4</span></span>
         </div>
+        <div class="flex items-center space-x-2">
+            <span id="global-badge-tier" class="text-[9px] font-mono font-bold px-2 py-0.5 bg-zinc-900 border border-zinc-800 rounded text-neonmint uppercase">FREE ACCESS</span>
+            <div class="w-2 h-2 rounded-full bg-neonmint shadow-[0_0_8px_#10B981]"></div>
+        </div>
+    </header>
+
+    <!-- DYNAMIC CATEGORIES FLOATING DRAWER BLOCK -->
+    <div id="category-drawer" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="w-72 h-full bg-charcoalblack border-r border-slate-900 p-6 flex flex-col space-y-6 transform transition-transform duration-300">
+            <div class="flex items-center justify-between border-b border-slate-900 pb-4">
+                <h3 class="font-mono font-bold text-xs tracking-widest text-zinc-400 uppercase">Explore Categories</h3>
+                <button onclick="toggleCategoryDrawer()" class="text-zinc-500 hover:text-white font-mono text-xs">✕ CLOSE</button>
+            </div>
+            <nav class="flex flex-col space-y-2">
+                {% for cat in categories %}
+                <a href="/?category={{ '' if cat == 'All' else cat }}" class="px-4 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider hover:bg-cyberpurple/10 border border-transparent hover:border-cyberpurple/20 transition-all {% if current_category == cat %} bg-cyberpurple/20 border-cyberpurple/40 text-white font-bold {% else %} text-zinc-400 {% endif %}">
+                    📂 {{ cat }}
+                </a>
+                {% endfor %}
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA WORKSPACE -->
+    <main class="flex-1 overflow-y-auto pb-24 p-4 max-w-2xl w-full mx-auto" id="main-viewport-container">
         
-        <!-- High-Performance Core Metrics Menu Links -->
-        <div class="hidden md:flex items-center space-x-8 text-[11px] font-mono uppercase tracking-widest text-zinc-500">
-            <a href="#" class="hover:text-white transition-all duration-200">Forex Analytics</a>
-            <a href="#" class="hover:text-white transition-all duration-200">Crypto Matrix</a>
-            <a href="#" class="hover:text-white transition-all duration-200">AI Jarvis Node</a>
-            <a href="#" class="text-nikeorange font-bold hover:opacity-80 transition-all">★ Paper Arena</a>
-        </div>
-
-        <div class="flex items-center space-x-3">
-            <div class="bg-zinc-900/80 border border-zinc-800 px-3 py-1 rounded text-[10px] font-mono text-performancevolt">
-                ⚡ 100 MINTCOINS
+        <!-- 🏠 VIEW 1: HOME NEWS AGGREGATOR -->
+        <section id="view-home" class="space-y-4">
+            <div class="flex items-center justify-between px-1">
+                <h2 class="text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500">Trending Intelligence Stream (Top 100)</h2>
+                <span class="text-[9px] font-mono text-zinc-600 uppercase">Category: {{ current_category }}</span>
             </div>
-        </div>
-    </nav>
-
-    <!-- Main System Grid Workspace Interface -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
-        
-        <!-- News Feed Aggregator Block Array (Left - 2 Columns) -->
-        <div class="lg:col-span-2 flex flex-col bg-mattecarbon border border-zinc-900 rounded-xl p-5 shadow-2xl overflow-y-auto space-y-4">
-            <div class="flex items-center justify-between border-b border-zinc-900 pb-3">
-                <h2 class="text-[11px] font-mono font-bold tracking-widest text-zinc-500 uppercase">Synchronized News Stream Terminal</h2>
-                <span class="w-2 h-2 rounded-full bg-performancevolt animate-ping"></span>
-            </div>
-
-            <div class="divide-y divide-zinc-900">
-                {% if articles %}
-                    {% for article in articles %}
-                    <div class="py-4 first:pt-0 last:pb-0 group transition-all duration-200">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-[9px] font-mono uppercase tracking-wider bg-nikeorange/10 text-nikeorange px-2 py-0.5 rounded border border-nikeorange/20">{{ article.category }}</span>
-                            <span class="text-[10px] font-mono text-zinc-600">3 mins read</span>
-                        </div>
-                        <h3 class="text-sm font-bold text-zinc-200 mt-2 group-hover:text-nikeorange transition-colors cursor-pointer leading-snug">{{ article.title }}</h3>
-                        <p class="text-zinc-500 text-xs mt-1 line-clamp-2 leading-relaxed">{{ article.content }}</p>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="py-16 flex flex-col items-center justify-center text-center space-y-3">
-                        <div class="p-3 bg-zinc-900 rounded-full border border-zinc-800 text-zinc-700">
-                            📊
-                        </div>
-                        <p class="font-mono text-xs text-zinc-600 uppercase tracking-wider">Pipeline operational. Waiting for real-time aggregation logs...</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Analytical Framework Widgets Dashboard Sidebar (Right - 1 Column) -->
-        <div class="space-y-6 flex flex-col justify-start overflow-y-auto pr-1">
             
-            <!-- Real-time Asset Vectors Tracker Widget -->
-            <div class="bg-stealthblack border border-zinc-900 rounded-xl p-5 space-y-4 shadow-xl">
-                <div class="flex items-center justify-between border-b border-zinc-900 pb-3">
-                    <h3 class="text-[10px] font-mono font-bold tracking-widest text-zinc-400 uppercase">Market Telemetry Matrix</h3>
-                    <span class="text-[9px] font-mono text-zinc-600">LIVE WIDGET</span>
+            {% if articles %}
+                {% for article in articles %}
+                <div class="bg-charcoalblack border border-slate-900/60 rounded-2xl p-4 space-y-3 shadow-xl relative overflow-hidden group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-mono uppercase tracking-wider font-bold text-radiantcyan bg-radiantcyan/10 px-2 py-0.5 rounded border border-radiantcyan/20">✨ {{ article.category }}</span>
+                        <span class="text-[9px] font-mono text-zinc-600">{{ article.original_source }}</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white group-hover:text-cyberpurple transition-colors duration-200 leading-snug">{{ article.title }}</h3>
+                    <p class="text-zinc-400 text-xs line-clamp-3 leading-relaxed font-normal">{{ article.content }}</p>
+                    
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-900/80">
+                        <button onclick="launchAIEngine({{ article.id }}, 'summary')" class="py-2 px-1 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyberpurple/40 text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-tighter flex items-center justify-center space-x-1 hover:text-white transition-all">
+                            <span>📝</span> <span>Summarise</span>
+                        </button>
+                        <button onclick="launchAIEngine({{ article.id }}, 'detailed')" class="py-2 px-1 rounded-xl bg-slate-900 border border-slate-800 hover:border-electricindigo/40 text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-tighter flex items-center justify-center space-x-1 hover:text-white transition-all">
+                            <span>📊</span> <span>Detailed</span>
+                        </button>
+                        <button onclick="launchAIEngine({{ article.id }}, 'script')" class="py-2 px-1 rounded-xl bg-slate-900 border border-slate-800 hover:border-neonmint/40 text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-tighter flex items-center justify-center space-x-1 hover:text-white transition-all">
+                            <span>🚀</span> <span>Scripts/Tweets</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="space-y-2.5 font-mono text-xs">
-                    <div class="flex justify-between items-center p-2.5 bg-zinc-900/40 rounded-lg border border-zinc-900 hover:border-zinc-800 transition-all">
-                        <span class="text-zinc-500 font-medium">BTCUSD</span>
-                        <span class="text-emerald-400 font-bold">$68,452.10</span>
-                    </div>
-                    <div class="flex justify-between items-center p-2.5 bg-zinc-900/40 rounded-lg border border-zinc-900 hover:border-zinc-800 transition-all">
-                        <span class="text-zinc-500 font-medium">EURUSD</span>
-                        <span class="text-zinc-300 font-bold">1.08420</span>
-                    </div>
-                    <div class="flex justify-between items-center p-2.5 bg-zinc-900/40 rounded-lg border border-zinc-900 hover:border-zinc-800 transition-all">
-                        <span class="text-zinc-500 font-medium">XAUUSD</span>
-                        <span class="text-amber-500 font-bold">$2,341.80</span>
-                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-12 text-center font-mono text-xs text-zinc-600 uppercase tracking-wider">No active telemetry arrays online.</div>
+            {% endif %}
+        </section>
+
+        <!-- 💰 VIEW 2: AD-WALLET TOKENOMICS MATRIX PANEL -->
+        <section id="view-wallet" class="hidden space-y-6">
+            <div class="bg-gradient-to-br from-slate-900 to-charcoalblack border border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-10 -left-10 w-24 h-24 bg-cyberpurple/10 rounded-full blur-2xl"></div>
+                <h2 class="text-xs font-mono tracking-widest text-zinc-400 uppercase">Account Tokenomics Ledger</h2>
+                <div class="space-y-1">
+                    <p class="text-4xl font-mono font-black text-neonmint" id="wallet-balance-display">00</p>
+                    <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">AGGREGATED AD CREDITS</p>
+                </div>
+                <div class="pt-2 border-t border-slate-800/60 max-w-xs mx-auto flex flex-col space-y-1.5 font-mono text-[11px] text-zinc-400">
+                    <div class="flex justify-between"><span>Active Plan:</span><span class="text-white font-bold" id="wallet-tier-string">FREE PASS</span></div>
+                    <div class="flex justify-between"><span>Remaining Validity:</span><span class="text-neonmint font-bold" id="wallet-expiry-string">0 DAYS</span></div>
                 </div>
             </div>
 
-            <!-- Jarvis Conversational Prompt Core Console -->
-            <div class="bg-mattecarbon border border-zinc-900 rounded-xl p-5 space-y-4 shadow-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-24 h-24 bg-nikeorange/5 rounded-full blur-2xl pointer-events-none"></div>
-                <h3 class="text-[10px] font-mono font-bold tracking-widest text-nikeorange uppercase">⚡ Jarvis AI Cognitive Node</h3>
-                <p class="text-zinc-500 text-xs leading-relaxed">Submit structural parameters or query alpha sentiment indicators directly through the model proxy shell.</p>
-                
-                <div class="space-y-2">
-                    <textarea class="w-full bg-black border border-zinc-900 focus:border-nikeorange rounded-lg p-3 text-xs text-zinc-200 placeholder-zinc-700 focus:outline-none transition-all resize-none h-20 font-mono" placeholder="Jarvis, scan macro volatility indexes..."></textarea>
-                    <button class="w-full bg-white text-black hover:bg-nikeorange hover:text-white font-mono font-bold text-xs uppercase py-2.5 rounded-lg transition-all tracking-wider">
-                        Execute Pipeline Request
-                    </button>
-                </div>
+            <div class="bg-charcoalblack border border-slate-900 p-5 rounded-2xl space-y-3 shadow-xl text-center">
+                <h3 class="text-xs font-mono font-bold text-zinc-300 uppercase tracking-wider">⚡ Watch Ads & Earn Free Token Balances</h3>
+                <p class="text-zinc-500 text-xs">Earn 1 Credit instantly upon confirmation loop execution parameters.</p>
+                <button onclick="simulateAdWatchTransaction()" class="w-full py-3 bg-cyberpurple hover:bg-electricindigo text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-cyberpurple/20">
+                    📺 Open Video Stream Monetization Target
+                </button>
             </div>
 
-        </div>
+            <div class="space-y-3">
+                <h3 class="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest px-1">Unlock Multi-Tier Advanced Content Plans</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="claimPremiumSubscriptionBundle(1)" class="bg-slate-900/60 border border-slate-800 hover:border-cyberpurple p-4 rounded-xl cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                        <div><p class="text-white font-mono font-bold text-xs uppercase">1 Day Access</p></div>
+                        <p class="text-xs font-mono font-bold text-neonmint text-right uppercase">10 CREDITS</p>
+                    </div>
+                    <div onclick="claimPremiumSubscriptionBundle(3)" class="bg-slate-900/60 border border-slate-800 hover:border-cyberpurple p-4 rounded-xl cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                        <div><p class="text-white font-mono font-bold text-xs uppercase">3 Days Access</p></div>
+                        <p class="text-xs font-mono font-bold text-neonmint text-right uppercase">27 CREDITS</p>
+                    </div>
+                    <div onclick="claimPremiumSubscriptionBundle(7)" class="bg-slate-900/60 border border-slate-800 hover:border-cyberpurple p-4 rounded-xl cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                        <div><p class="text-white font-mono font-bold text-xs uppercase">7 Days Access</p></div>
+                        <p class="text-xs font-mono font-bold text-neonmint text-right uppercase">60 CREDITS</p>
+                    </div>
+                    <div onclick="claimPremiumSubscriptionBundle(28)" class="bg-slate-900/60 border border-slate-800 hover:border-cyberpurple p-4 rounded-xl cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                        <div><p class="text-white font-mono font-bold text-xs uppercase">28 Days Access</p></div>
+                        <p class="text-xs font-mono font-bold text-neonmint text-right uppercase">250 CREDITS</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 🔍 VIEW 3: SEARCH TERMINAL -->
+        <section id="view-search" class="hidden space-y-4">
+            <div class="bg-charcoalblack border border-slate-900 p-4 rounded-2xl shadow-xl space-y-3">
+                <h3 class="text-xs font-mono font-bold tracking-wider text-zinc-400 uppercase">Semantic Vector Space Query Terminal</h3>
+                <input type="text" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-3 text-xs text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-cyberpurple font-mono" placeholder="Search keywords...">
+                <button class="w-full py-2 bg-slate-900 hover:bg-slate-850 text-zinc-400 hover:text-white border border-slate-800 rounded-xl text-xs font-mono uppercase tracking-wider transition-all">Execute Lookup Sequence</button>
+            </div>
+        </section>
+
+        <!-- 🤖 VIEW 4: CHAT CONSOLE INTERFACE -->
+        <section id="view-ai" class="hidden flex flex-col h-[70vh] bg-charcoalblack border border-slate-900 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="bg-slate-950/80 px-4 py-3 border-b border-slate-900 flex items-center justify-between">
+                <span class="text-[10px] font-mono text-cyberpurple font-bold tracking-widest uppercase">Jarvis Autonomous System Node</span>
+            </div>
+            <div id="jarvis-chat-screen-logs" class="flex-1 p-4 overflow-y-auto space-y-3 font-mono text-xs">
+                <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-900 text-zinc-400 leading-relaxed max-w-[85%]">
+                    ⚡ System node established. I am Jarvis V4. Ask analytics updates.
+                </div>
+            </div>
+            <div class="p-3 bg-slate-950 border-t border-slate-900 flex items-center space-x-2">
+                <input id="jarvis-input-field-query" type="text" class="flex-1 bg-black border border-slate-850 focus:border-cyberpurple rounded-xl p-3 text-xs text-zinc-200 placeholder-zinc-700 focus:outline-none transition-all" placeholder="Ask Jarvis regarding technical setups...">
+                <button onclick="transmitJarvisTerminalPrompt()" class="bg-cyberpurple hover:bg-electricindigo text-white font-mono font-bold text-xs px-4 py-3 rounded-xl transition-all uppercase tracking-wider">SEND</button>
+            </div>
+        </section>
+
     </main>
 
-    <!-- System Status Bottom Console Line -->
-    <footer class="bg-stealthblack border-t border-zinc-950 p-4 text-center text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
-        MintNews V3 Core Logic System Architecture // Operational & Verified
+    <!-- FULL COGNITIVE PANEL OVERLAY SHEET LAYER -->
+    <div id="ai-engine-screen-overlay" class="fixed inset-0 bg-richnavy z-50 hidden flex-col overflow-hidden transition-all duration-300">
+        <header class="bg-charcoalblack px-4 py-4 border-b border-slate-900 flex items-center justify-between shadow-md">
+            <div class="flex items-center space-x-2">
+                <span class="text-[9px] font-mono font-bold px-2 py-0.5 bg-cyberpurple/20 text-cyberpurple border border-cyberpurple/40 rounded uppercase" id="overlay-operation-badge">SUMMARY NODE</span>
+                <h2 class="text-xs font-bold text-white tracking-tight uppercase font-mono" id="overlay-article-title-string">SYSTEM INTERACTIVE PROXY CHANNEL</h2>
+            </div>
+            <button onclick="dismissAIEngineOverlay()" class="text-zinc-500 hover:text-white font-mono text-xs px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg transition-all">✕ TERMINATE PROCESS</button>
+        </header>
+        <div class="bg-slate-950 px-4 py-2 border-b border-slate-900 flex items-center space-x-3 overflow-x-auto text-[11px] font-mono text-zinc-400">
+            <span class="text-zinc-600 font-bold uppercase">Target Translation Node:</span>
+            <button onclick="changeAILanguageProxy('English')" class="text-cyberpurple underline font-bold px-2 py-0.5 focus:outline-none" id="lang-btn-English">English</button>
+            <button onclick="changeAILanguageProxy('Hindi')" class="hover:text-white px-2 py-0.5 focus:outline-none" id="lang-btn-Hindi">Hindi</button>
+            <button onclick="changeAILanguageProxy('Hinglish')" class="hover:text-white px-2 py-0.5 focus:outline-none" id="lang-btn-Hinglish">Hinglish</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-5 space-y-6 max-w-2xl w-full mx-auto">
+            <div class="bg-charcoalblack border border-slate-900 rounded-2xl p-6 shadow-2xl relative min-h-[250px]">
+                <div id="ai-loading-placeholder-spinner" class="absolute inset-0 bg-charcoalblack/80 flex items-center justify-center font-mono text-xs text-zinc-500 hidden uppercase tracking-widest">
+                    🔄 Synchronizing variables with Groq Core Models...
+                </div>
+                <div id="ai-result-markdown-payload-box" class="text-zinc-300 text-xs leading-relaxed space-y-4 font-normal whitespace-pre-line select-text">
+                    Analytical stream payload initialized.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INSTAGRAM-STYLE CORE BOTTOM NAVIGATION -->
+    <footer class="fixed bottom-0 left-0 right-0 z-40 bg-charcoalblack/95 border-t border-slate-900 backdrop-blur-md px-4 py-2 flex items-center justify-around shadow-[0_-5px_25px_rgba(0,0,0,0.6)]">
+        <button onclick="switchSystemViewportTab('home')" id="nav-tab-home" class="flex flex-col items-center justify-center space-y-1 py-1 px-3 text-zinc-500 transition-all focus:outline-none active-tab">
+            <span class="text-lg">🏠</span>
+            <span class="text-[9px] font-mono uppercase tracking-wider font-bold">Home</span>
+        </button>
+        <button onclick="switchSystemViewportTab('wallet')" id="nav-tab-wallet" class="flex flex-col items-center justify-center space-y-1 py-1 px-3 text-zinc-500 transition-all focus:outline-none">
+            <span class="text-lg">💳</span>
+            <span class="text-[9px] font-mono uppercase tracking-wider font-bold">Wallet</span>
+        </button>
+        <button onclick="switchSystemViewportTab('search')" id="nav-tab-search" class="flex flex-col items-center justify-center space-y-1 py-1 px-3 text-zinc-500 transition-all focus:outline-none">
+            <span class="text-lg">🔍</span>
+            <span class="text-[9px] font-mono uppercase tracking-wider font-bold">Search</span>
+        </button>
+        <button onclick="switchSystemViewportTab('ai')" id="nav-tab-ai" class="flex flex-col items-center justify-center space-y-1 py-1 px-3 text-zinc-500 transition-all focus:outline-none">
+            <span class="text-lg">🤖</span>
+            <span class="text-[9px] font-mono uppercase tracking-wider font-bold">AI Node</span>
+        </button>
     </footer>
 
+    <script>
+        let activeTargetArticleId = null;
+        let activeTargetOperation = null;
+        let activeSelectedLanguage = 'English';
+        let mockedAuthJwtHeaderToken = "Bearer client_session_bypass_token_string";
+
+        function switchSystemViewportTab(targetTabId) {
+            const sections = ['home', 'wallet', 'search', 'ai'];
+            sections.forEach(sec => {
+                document.getElementById(`view-${sec}`).classList.add('hidden');
+                document.getElementById(`nav-tab-${sec}`).classList.remove('active-tab');
+            });
+            document.getElementById(`view-${targetTabId}`).classList.remove('hidden');
+            document.getElementById(`nav-tab-${targetTabId}`).classList.add('active-tab');
+        }
+
+        function toggleCategoryDrawer() {
+            const drawer = document.getElementById('category-drawer');
+            if(drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                setTimeout(() => drawer.children[0].style.transform = "translateX(0)", 50);
+            } else {
+                drawer.children[0].style.transform = "translateX(-100%)";
+                setTimeout(() => drawer.classList.add('hidden'), 300);
+            }
+        }
+
+        function simulateAdWatchTransaction() {
+            window.open("https://omg10.com/4/11162641", "_blank");
+            fetch('/api/wallet/watch-ad', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': mockedAuthJwtHeaderToken }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.current_credits !== undefined) {
+                    document.getElementById('wallet-balance-display').innerText = String(data.current_credits).padStart(2, '0');
+                    alert("✅ Ad watched! 1 Credit added to your wallet.");
+                }
+            }).catch(err => console.error("Error:", err));
+        }
+
+        function claimPremiumSubscriptionBundle(planDaysValue) {
+            fetch('/api/wallet/claim-subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': mockedAuthJwtHeaderToken },
+                body: JSON.stringify({ plan: planDaysValue })
+            })
+            .then(res => {
+                if (res.status === 402) { alert("🔴 Insufficient Credits!"); return null; }
+                return res.json();
+            })
+            .then(data => {
+                if(data && data.premium_active) {
+                    document.getElementById('wallet-balance-display').innerText = String(data.wallet_remaining_credits).padStart(2, '0');
+                    document.getElementById('wallet-tier-string').innerText = "PREMIUM ELITE PASS";
+                    document.getElementById('wallet-expiry-string').innerText = `${data.days_remaining} DAYS`;
+                    document.getElementById('global-badge-tier').innerText = "PREMIUM ACTIVE";
+                    alert(`🎉 Premium activated for ${planDaysValue} days!`);
+                }
+            }).catch(err => console.error("Error:", err));
+        }
+
+        function launchAIEngine(articleId, operationString) {
+            activeTargetArticleId = articleId;
+            activeTargetOperation = operationString;
+            document.getElementById('overlay-operation-badge').innerText = operationString.toUpperCase();
+            document.getElementById('ai-engine-screen-overlay').classList.remove('hidden');
+            document.getElementById('ai-engine-screen-overlay').classList.add('flex');
+            triggerGroqPipelineExecution();
+        }
+
+        function changeAILanguageProxy(langString) {
+            ['English', 'Hindi', 'Hinglish'].forEach(l => {
+                document.getElementById(`lang-btn-${l}`).classList.remove('text-cyberpurple', 'underline', 'font-bold');
+            });
+            document.getElementById(`lang-btn-${langString}`).classList.add('text-cyberpurple', 'underline', 'font-bold');
+            activeSelectedLanguage = langString;
+            triggerGroqPipelineExecution();
+        }
+
+        function triggerGroqPipelineExecution() {
+            document.getElementById('ai-loading-placeholder-spinner').classList.remove('hidden');
+            fetch('/api/ai/process-article', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': mockedAuthJwtHeaderToken },
+                body: JSON.stringify({
+                    article_id: activeTargetArticleId,
+                    operation: activeTargetOperation,
+                    language: activeSelectedLanguage
+                })
+            })
+            .then(res => {
+                if(res.status === 402) {
+                    document.getElementById('ai-loading-placeholder-spinner').classList.add('hidden');
+                    document.getElementById('ai-result-markdown-payload-box').innerHTML = 
+                        `<div class="p-4 bg-red-950/30 border border-red-900 rounded-xl text-center text-red-400 font-mono text-xs uppercase">
+                            🛑 PREMIUM LOCKED FEATURE<br><br>
+                            Detailed Briefs, Video Content Scripts, and Blog Expansions require an active premium pass tier.<br><br>
+                            Please visit the 💳 WALLET pane to claim your pass!
+                        </div>`;
+                    return null;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if(!data) return;
+                document.getElementById('ai-loading-placeholder-spinner').classList.add('hidden');
+                if(data.result) document.getElementById('ai-result-markdown-payload-box').innerText = data.result;
+            }).catch(err => console.error("Error:", err));
+        }
+
+        function dismissAIEngineOverlay() {
+            document.getElementById('ai-engine-screen-overlay').classList.add('hidden');
+            document.getElementById('ai-engine-screen-overlay').classList.remove('flex');
+        }
+
+        function transmitJarvisTerminalPrompt() {
+            const inputField = document.getElementById('jarvis-input-field-query');
+            const promptText = inputField.value.trim();
+            if(!promptText) return;
+            const chatScreen = document.getElementById('jarvis-chat-screen-logs');
+            chatScreen.innerHTML += `<div class="bg-cyberpurple/20 p-3 rounded-xl border border-cyberpurple/30 text-white max-w-[85%] ml-auto text-right">User: ${promptText}</div>`;
+            inputField.value = "";
+            fetch('/api/ai/jarvis-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': mockedAuthJwtHeaderToken },
+                body: JSON.stringify({ prompt: promptText })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.response) {
+                    chatScreen.innerHTML += `<div class="bg-slate-900/60 p-3 rounded-xl border border-slate-900 text-zinc-300 max-w-[85%]">Jarvis: ${data.response}</div>`;
+                    chatScreen.scrollTop = chatScreen.scrollHeight;
+                }
+            }).catch(err => console.error("Error:", err));
+        }
+    </script>
 </body>
 </html>
