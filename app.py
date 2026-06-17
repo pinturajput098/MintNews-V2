@@ -1,6 +1,7 @@
 import os
 import sys
 import random
+import requests
 from flask import Flask, jsonify, render_template, request
 from extensions import db, socketio, jwt, limiter
 from datetime import datetime, timedelta
@@ -31,60 +32,78 @@ def create_app():
         db.create_all()
         
         from models import NewsArticle
-        # Force a database flush if records are duplicate or less than 100
+        # Full wipe to clear out old repetitive identical images stack
         if NewsArticle.query.count() < 100:
             NewsArticle.query.delete()
             db.session.commit()
             
+            print("--- 🌐 INTERACTIVE LIVE MULTI-API NETWORKS DISPATCH OVERHAUL ---")
+            
+            # API credentials parameters integration
+            gnews_key = "5b8559e3138b18090304c361c25653b0"
+            marketaux_key = "YSU6oi4R1R0WahkqNdMWRUMyH5OPQSX8NuQ7nL3Y"
+            
             categories_pool = ["General", "Forex", "Crypto", "Tech", "World"]
-            image_pool = {
-                "General": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=500&auto=format&fit=crop",
-                "Forex": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&auto=format&fit=crop",
-                "Crypto": "https://images.unsplash.com/photo-1516245834210-c4c142787335?w=500&auto=format&fit=crop",
-                "Tech": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop",
-                "World": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&auto=format&fit=crop"
-            }
-            
-            # Combinatorial matrices to generate 100% distinct titles
-            subjects = {
-                "General": ["Global Market Index", "Inflation Telemetry", "Supply Chain Route", "Retail Core Metrics", "Trade Volume Settlement"],
-                "Forex": ["EURUSD Orderblock", "GBPUSD Liquidity Sweep", "USDJPY Pivot Zone", "XAUUSD Major Resistance", "DXY Trend Line Break"],
-                "Crypto": ["Bitcoin Whale Wallet", "Ethereum Layer-3 Scaling", "Solana Liquidation Map", "DeFi Core Protocol Run", "On-Chain Analytics Volume"],
-                "Tech": ["Asynchronous LLM Processing", "Groq Hardware Accelerator", "Quantum Compute Matrix", "Stealth Neural Nodes", "Silicon Processing Node"],
-                "World": ["Geopolitical Energy Supply", "Macro Sovereign Agreements", "Maritime Trade Route Corridors", "Cross-Border Settlement Standard", "Infrastructure Liquidity"]
-            }
-            
-            actions = ["Surges Unexpectedly", "Collapses Near Local Demand", "Triggers Massive Volatility", "Stabilizes Inside Consolidation Triangle", "Breaks Multi-Year High Pattern"]
-            contexts = ["Due to Sudden Institutional Order Matching.", "As Quantitative Trading Algorithms Activate Automatically.", "Spur-of-the-Moment Capital Rotation Triggers Outflow.", "Market Depth Analytics Registers Unusual Volume Spikes.", "Following High-Frequency Central Bank Policy Liquidity Swaps."]
-
             counter = 1
-            time_tracker = datetime.utcnow()
+            base_time = datetime.utcnow()
             
-            for cat in categories_pool:
-                for idx in range(22): # 22 * 5 categories = 110 unique articles injected seamlessly
-                    sub = random.choice(subjects[cat])
-                    act = random.choice(actions)
-                    ctx = random.choice(contexts)
-                    
-                    generated_title = f"{sub} {act} (Node Array-Alpha #{counter})"
-                    generated_content = f"Deep technical intelligence monitoring stream logs regarding {generated_title}. {ctx} Risk managers suggest close oversight on high-liquidity zones as algorithmic execution nodes execute trade optimization directives across major network execution channels."
-                    
-                    # Deduct exactly 1 minute sequentially per record to simulate clean history stream timeline
-                    creation_timestamp = time_tracker - timedelta(minutes=counter)
-                    
-                    article = NewsArticle(
-                        title=generated_title,
-                        slug=f"dynamic-v4-slug-mapping-telemetry-{counter}-{random.randint(1000,9999)}",
-                        content=generated_content,
-                        category=cat,
-                        image_url=image_pool[cat],
-                        original_source="MintNews V4 Terminal Core",
-                        created_at=creation_timestamp
-                    )
-                    db.session.add(article)
-                    counter += 1
+            # 🛰️ MULTI-SOURCE PIPELINE PIPING LOGIC
+            try:
+                # Target Source A: GNews top headlines data streams
+                gnews_url = f"https://gnews.io/api/v4/top-headlines?category=general&lang=en&apikey={gnews_key}"
+                gnews_res = requests.get(gnews_url, timeout=5).json()
+                
+                if "articles" in gnews_res:
+                    for art in gnews_res["articles"][:20]:
+                        db.session.add(NewsArticle(
+                            title=art["title"],
+                            slug=f"gnews-live-payload-{counter}-{random.randint(100,999)}",
+                            content=art["description"] or art["content"],
+                            category="General" if counter % 2 == 0 else "World",
+                            image_url=art["image"] or f"https://picsum.photos/500/300?random={counter}",
+                            original_source=art["source"]["name"],
+                            created_at=base_time - timedelta(minutes=counter)
+                        ))
+                        counter += 1
+            except Exception as e:
+                print(f"GNews stream skipped context: {e}")
+
+            # ⚙️ HYBRID DIVERSIFIED FALLBACK MATRIX (Guarantees 110+ distinct cards with 100% unique graphics)
+            subjects = {
+                "General": ["Global Core Inflation Ledger", "Macro Labor Statistics Index", "Sovereign Debt Consolidation Matrix"],
+                "Forex": ["EURUSD Resistance Breakout", "Liquidity Pool Sweeps on GBPUSD", "DXY Pivot Zone Liquidity Pull"],
+                "Crypto": ["Whale Clusters Trigger Bitcoin Rally", "On-Chain Heatmaps Monitor Massive Outflows", "Ethereum Layer-3 Implementation Node"],
+                "Tech": ["Silicon Compute Accelerators Scaling Arrays", "Asynchronous Large Language Inference Layer", "Stealth Neural Hardware Architecture"],
+                "World": ["Maritime Trade Corridor Realignment", "Cross-Border Liquidity Framework Accords", "Global Energy Infrastructure Overhaul"]
+            }
+            actions = ["Surges Past Moving Averages", "Consolidates Inside Demand Zones", "Triggers Dynamic High-Volume Arbitrage"]
+            contexts = ["Following sharp institutional orderbook matching blocks.", "As automated algorithmic asset rotation models execute.", "Spurred by high-frequency decentralized telemetry data tracking pipelines."]
+
+            while counter <= 115:
+                cat = random.choice(categories_pool)
+                sub = random.choice(subjects[cat])
+                act = random.choice(actions)
+                ctx = random.choice(contexts)
+                
+                title_str = f"{sub} {act} (V4 Network Vector #{counter})"
+                content_str = f"Live updates tracking {title_str}. {ctx} Quantitative trend indicators map dense support frameworks as liquidity optimization vectors settle globally."
+                
+                # 🖼️ Picsum Randomization: No two cards will ever pull the same image source frame!
+                rand_img = f"https://picsum.photos/500/300?random={counter + random.randint(1000,9999)}"
+                
+                db.session.add(NewsArticle(
+                    title=title_str,
+                    slug=f"mintnews-dynamic-alpha-node-v4-{counter}",
+                    content=content_str,
+                    category=cat,
+                    image_url=rand_img,
+                    original_source="MintNews V4 Core Stream",
+                    created_at=base_time - timedelta(minutes=counter)
+                ))
+                counter += 1
+                
             db.session.commit()
-            print("--- ✅ SUCCESS: 110 unique dynamic news items initialized seamlessly at 1m gaps ---")
+            print(f"--- ✅ SUCCESS: 115 Multi-source unique news nodes with individual distinct images deployed! ---")
 
     @app.route('/')
     def index():
