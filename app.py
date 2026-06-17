@@ -32,78 +32,91 @@ def create_app():
         db.create_all()
         
         from models import NewsArticle
-        # Full wipe to clear out old repetitive identical images stack
-        if NewsArticle.query.count() < 100:
-            NewsArticle.query.delete()
-            db.session.commit()
-            
-            print("--- 🌐 INTERACTIVE LIVE MULTI-API NETWORKS DISPATCH OVERHAUL ---")
-            
-            # API credentials parameters integration
-            gnews_key = "5b8559e3138b18090304c361c25653b0"
-            marketaux_key = "YSU6oi4R1R0WahkqNdMWRUMyH5OPQSX8NuQ7nL3Y"
-            
-            categories_pool = ["General", "Forex", "Crypto", "Tech", "World"]
-            counter = 1
-            base_time = datetime.utcnow()
-            
-            # 🛰️ MULTI-SOURCE PIPELINE PIPING LOGIC
-            try:
-                # Target Source A: GNews top headlines data streams
-                gnews_url = f"https://gnews.io/api/v4/top-headlines?category=general&lang=en&apikey={gnews_key}"
-                gnews_res = requests.get(gnews_url, timeout=5).json()
-                
-                if "articles" in gnews_res:
-                    for art in gnews_res["articles"][:20]:
+        # Hard flush old repetitive identical template databases
+        NewsArticle.query.delete()
+        db.session.commit()
+        
+        print("--- 🛰️ LOADING MULTI-SOURCE LIVE INTERACTIVE NEWS SEEDER ---")
+        
+        gnews_token = "5b8559e3138b18090304c361c25653b0"
+        marketaux_token = "YSU6oi4R1R0WahkqNdMWRUMyH5OPQSX8NuQ7nL3Y"
+        
+        base_time = datetime.utcnow()
+        counter = 1
+        seen_titles = set()
+
+        # 🌐 SOURCE A: GNEWS ENGINE CHANNEL INTEGRATION
+        try:
+            gnews_endpoint = f"https://gnews.io/api/v4/top-headlines?category=general&lang=en&apikey={gnews_token}"
+            gnews_data = requests.get(gnews_endpoint, timeout=4).json()
+            if "articles" in gnews_data:
+                for target in gnews_data["articles"]:
+                    title_clean = target["title"]
+                    if title_clean not in seen_titles:
+                        seen_titles.add(title_clean)
                         db.session.add(NewsArticle(
-                            title=art["title"],
-                            slug=f"gnews-live-payload-{counter}-{random.randint(100,999)}",
-                            content=art["description"] or art["content"],
+                            title=title_clean,
+                            slug=f"gnews-node-sync-v4-{counter}",
+                            content=target["description"] or target["content"],
                             category="General" if counter % 2 == 0 else "World",
-                            image_url=art["image"] or f"https://picsum.photos/500/300?random={counter}",
-                            original_source=art["source"]["name"],
-                            created_at=base_time - timedelta(minutes=counter)
+                            image_url=target["image"] or f"https://picsum.photos/600/400?random={counter}",
+                            original_source=target["source"]["name"],
+                            created_at=base_time - timedelta(minutes=counter * 2)
                         ))
                         counter += 1
-            except Exception as e:
-                print(f"GNews stream skipped context: {e}")
+        except Exception as e:
+            print(f"GNews real-time extraction pipeline skipped: {e}")
 
-            # ⚙️ HYBRID DIVERSIFIED FALLBACK MATRIX (Guarantees 110+ distinct cards with 100% unique graphics)
-            subjects = {
-                "General": ["Global Core Inflation Ledger", "Macro Labor Statistics Index", "Sovereign Debt Consolidation Matrix"],
-                "Forex": ["EURUSD Resistance Breakout", "Liquidity Pool Sweeps on GBPUSD", "DXY Pivot Zone Liquidity Pull"],
-                "Crypto": ["Whale Clusters Trigger Bitcoin Rally", "On-Chain Heatmaps Monitor Massive Outflows", "Ethereum Layer-3 Implementation Node"],
-                "Tech": ["Silicon Compute Accelerators Scaling Arrays", "Asynchronous Large Language Inference Layer", "Stealth Neural Hardware Architecture"],
-                "World": ["Maritime Trade Corridor Realignment", "Cross-Border Liquidity Framework Accords", "Global Energy Infrastructure Overhaul"]
-            }
-            actions = ["Surges Past Moving Averages", "Consolidates Inside Demand Zones", "Triggers Dynamic High-Volume Arbitrage"]
-            contexts = ["Following sharp institutional orderbook matching blocks.", "As automated algorithmic asset rotation models execute.", "Spurred by high-frequency decentralized telemetry data tracking pipelines."]
+        # 🌐 SOURCE B: MARKETAUX FOREX & MACRO LIQUIDITY ENGINE
+        try:
+            marketaux_endpoint = f"https://api.marketaux.com/v1/news/all?symbols=TSLA,AMZN,MSFT&filter_entities=true&api_token={marketaux_key}"
+            m_data = requests.get(marketaux_endpoint, timeout=4).json()
+            if "data" in m_data:
+                for target in m_data["data"]:
+                    title_clean = target["title"]
+                    if title_clean not in seen_titles:
+                        seen_titles.add(title_clean)
+                        db.session.add(NewsArticle(
+                            title=title_clean,
+                            slug=f"marketaux-forex-sync-{counter}",
+                            content=target["description"] or target["text"],
+                            category="Forex",
+                            image_url=target.get("image_url") or f"https://picsum.photos/600/400?random={counter + 50}",
+                            original_source=target.get("source", "WallStreet Terminal"),
+                            created_at=base_time - timedelta(minutes=counter * 3)
+                        ))
+                        counter += 1
+        except Exception as e:
+            print(f"Marketaux live macro array skipped: {e}")
 
-            while counter <= 115:
-                cat = random.choice(categories_pool)
-                sub = random.choice(subjects[cat])
-                act = random.choice(actions)
-                ctx = random.choice(contexts)
-                
-                title_str = f"{sub} {act} (V4 Network Vector #{counter})"
-                content_str = f"Live updates tracking {title_str}. {ctx} Quantitative trend indicators map dense support frameworks as liquidity optimization vectors settle globally."
-                
-                # 🖼️ Picsum Randomization: No two cards will ever pull the same image source frame!
-                rand_img = f"https://picsum.photos/500/300?random={counter + random.randint(1000,9999)}"
-                
+        # ⚙️ SECURE HIGH-VARIETY REALISTIC FALLBACK STREAMS (Guarantees unique cards)
+        fallback_titles = [
+            ("Crypto", "SEC Approves Institutional Layer-1 Smart Contract Liquidity Frameworks", "Major financial regulatory bodies have cleared baseline operational limits for multi-chain decentralized finance systems globally."),
+            ("Crypto", "Solana Network Architecture Experiences Massive Transaction Volume Surge", "On-chain transaction depth modules catch unprecedented volume spikes near historical demand blocks as capital rotation intensifies."),
+            ("Tech", "NVIDIA Unveils Advanced Blackwell B300 Ultra AI Architecture Processors", "The computing sector registers hyper-scale computing leaps utilizing advanced neural hardware processing topologies to process real-time inference."),
+            ("Tech", "OpenAI Injects Fully Autonomous Agent Runtimes Across Corporate Terminals", "Next-gen asynchronous models gain full capability optimization modules to run multi-threaded operational infrastructure configurations natively."),
+            ("Forex", "DXY US Dollar Index Consolidates Inside Dense Orderblock Zones", "Technical charting metrics monitor structural trend stabilization patterns waiting for upcoming central banking liquidity allocation parameters."),
+            ("World", "Global Energy Consortium Outlines Automated Cross-Border Energy Distribution Links", "Sovereign trade networks establish unified physical routing channels to optimize long-distance infrastructure parameters securely.")
+        ]
+
+        while counter <= 105:
+            item = random.choice(fallback_titles)
+            title_compiled = f"{item[1]} (Telemetry Array #{counter})"
+            if title_compiled not in seen_titles:
+                seen_titles.add(title_compiled)
                 db.session.add(NewsArticle(
-                    title=title_str,
-                    slug=f"mintnews-dynamic-alpha-node-v4-{counter}",
-                    content=content_str,
-                    category=cat,
-                    image_url=rand_img,
-                    original_source="MintNews V4 Core Stream",
-                    created_at=base_time - timedelta(minutes=counter)
+                    title=title_compiled,
+                    slug=f"mintnews-core-vector-v4-{counter}",
+                    content=f"{item[2]} Technical monitors record substantial shifts within decentralized indices while automated algorithms rebalance cross-border pipelines dynamically.",
+                    category=item[0],
+                    image_url=f"https://picsum.photos/600/400?random={counter + random.randint(1000, 9999)}",
+                    original_source="MintNews Intelligence Network",
+                    created_at=base_time - timedelta(minutes=counter * 5)
                 ))
                 counter += 1
-                
-            db.session.commit()
-            print(f"--- ✅ SUCCESS: 115 Multi-source unique news nodes with individual distinct images deployed! ---")
+
+        db.session.commit()
+        print(f"--- ✅ TOTAL DISTINCT FEED MATRIX REPOSITORY LOADED: {NewsArticle.query.count()} NODES ---")
 
     @app.route('/')
     def index():
