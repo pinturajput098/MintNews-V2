@@ -7,7 +7,7 @@ import os
 ai_bp = Blueprint('ai_bp', __name__)
 
 def query_gemini_bulletproof(prompt):
-    """Queries Google Gemini API by brute-forcing active production and latest model route combinations"""
+    """Queries Google Gemini production endpoints with intelligent rate-limit tracking"""
     api_key = os.environ.get('GEMINI_API_KEY')
     if not api_key:
         return {"error": "GEMINI_API_KEY is missing in Render Environment Settings."}
@@ -17,13 +17,11 @@ def query_gemini_bulletproof(prompt):
         "https": None
     }
 
-    # 🚀 Exhaustive matrix of EVERY possible working API version and model identifier combinations
+    # 🚀 Prioritizing the absolute stable production layouts
     test_matrix = [
         ("v1", "gemini-2.0-flash"),
         ("v1beta", "gemini-2.0-flash"),
-        ("v1", "gemini-1.5-flash"),
-        ("v1beta", "gemini-1.5-flash-latest"),
-        ("v1beta", "gemini-1.5-flash")
+        ("v1beta", "gemini-1.5-pro")
     ]
     
     payload = {
@@ -36,23 +34,31 @@ def query_gemini_bulletproof(prompt):
         }
     }
 
-    last_error_log = ""
+    errors = []
     for version, model in test_matrix:
         try:
             url = f"https://generativelanguage.googleapis.com/{version}/models/{model}:generateContent?key={api_key}"
-            response = requests.post(url, json=payload, proxies=no_proxies, timeout=10)
+            response = requests.post(url, json=payload, proxies=no_proxies, timeout=12)
             res_data = response.json()
             
             if 'candidates' in res_data and len(res_data['candidates']) > 0:
                 text = res_data['candidates'][0]['content']['parts'][0]['text']
                 return {"success": True, "text": text}
-            elif 'error' in res_data:
-                last_error_log = f"[{version}/{model}]: {res_data['error'].get('message', str(res_data))}"
+            
+            if 'error' in res_data:
+                err_msg = res_data['error'].get('message', '')
+                status = res_data['error'].get('status', '')
+                
+                # 🛑 CRITICAL FIX: If Google says rate limit is hit, alert the user directly instead of failing silently
+                if status == "RESOURCE_EXHAUSTED" or "quota" in err_msg.lower():
+                    return {"error": "Google Free Tier Rate Limit Hit (15 RPM). Please wait 30 seconds and try again!"}
+                
+                errors.append(f"{model}({version}): {err_msg}")
         except Exception as e:
-            last_error_log = f"[{version}/{model}]: {str(e)}"
+            errors.append(f"{model}({version}): {str(e)}")
             continue
             
-    return {"error": f"All Google Matrix endpoints exhausted. Last Log: {last_error_log}"}
+    return {"error": " | ".join(errors)}
 
 @ai_bp.route('/process-article', methods=['POST'])
 def process_article():
@@ -63,7 +69,7 @@ def process_article():
     
     article = NewsArticle.query.get(int(article_id))
     if not article:
-        return jsonify({'result': 'Error: Target article index node missing.'})
+        return jsonify({'result': 'Error: News article target reference missing.'})
 
     prompt = f"Perform operation '{operation_type}' on this news article text. Respond extensively and beautifully in fluid {target_lang}. Content: {article.content}"
     
@@ -71,7 +77,7 @@ def process_article():
     if "success" in result:
         return jsonify({'status': 'success', 'result': result["text"]})
     else:
-        return jsonify({'result': f"Gemini Matrix Error: {result['error']}"})
+        return jsonify({'result': f"Gemini Direct Error: {result['error']}"})
 
 @ai_bp.route('/jarvis-chat', methods=['POST'])
 def jarvis_chat():
