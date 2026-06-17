@@ -7,20 +7,23 @@ import os
 ai_bp = Blueprint('ai_bp', __name__)
 
 def query_gemini_bulletproof(prompt):
-    """Queries Google Gemini API directly via pure HTTP requests bypassing all proxy blocks"""
-    # First priority: GEMINI_API_KEY variable from Render settings
+    """Queries Google Gemini API by testing stable production routes sequentially"""
     api_key = os.environ.get('GEMINI_API_KEY')
     if not api_key:
         return {"error": "GEMINI_API_KEY is missing in Render Environment Settings."}
 
-    # 🔒 Force bypass any broken Render internal network proxies
+    # Bypasses any broken Render internal proxies
     no_proxies = {
         "http": None,
         "https": None
     }
 
-    # Official Google Core Global Endpoint (100% DNS Uptime)
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    # 🚀 Google Core Multi-Route Pool (Production v1 + Fallbacks)
+    endpoints_pool = [
+        "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    ]
     
     payload = {
         "contents": [{
@@ -32,19 +35,23 @@ def query_gemini_bulletproof(prompt):
         }
     }
 
-    try:
-        response = requests.post(url, json=payload, proxies=no_proxies, timeout=15)
-        res_data = response.json()
-        
-        if 'candidates' in res_data and len(res_data['candidates']) > 0:
-            text = res_data['candidates'][0]['content']['parts'][0]['text']
-            return {"success": True, "text": text}
-        elif 'error' in res_data:
-            return {"error": res_data['error'].get('message', str(res_data))}
-        else:
-            return {"error": f"Unexpected structural response: {str(res_data)}"}
-    except Exception as e:
-        return {"error": f"Google Core Gateway Connection Timeout: {str(e)}"}
+    last_error_log = ""
+    for base_url in endpoints_pool:
+        try:
+            full_url = f"{base_url}?key={api_key}"
+            response = requests.post(full_url, json=payload, proxies=no_proxies, timeout=12)
+            res_data = response.json()
+            
+            if 'candidates' in res_data and len(res_data['candidates']) > 0:
+                text = res_data['candidates'][0]['content']['parts'][0]['text']
+                return {"success": True, "text": text}
+            elif 'error' in res_data:
+                last_error_log = res_data['error'].get('message', str(res_data))
+        except Exception as e:
+            last_error_log = str(e)
+            continue
+            
+    return {"error": f"Google Endpoint Matrix exhausted. Logs: {last_error_log}"}
 
 @ai_bp.route('/process-article', methods=['POST'])
 def process_article():
