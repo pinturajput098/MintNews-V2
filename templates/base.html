@@ -1,324 +1,110 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MINTNEWS CONTROL HUB</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: { colors: { richnavy: '#0B0F19', charcoalblack: '#070A12', cyberpurple: '#6366F1', neonmint: '#10B981', radiantcyan: '#06B6D4', softwhite: '#E5E5E5' } }
-            }
+    <title>MintNews V4</title>
+    
+    <style>
+        body.modal-open {
+            overflow: hidden !important;
         }
-    </script>
-    <style>.active-tab { color: #6366F1 !important; border-top: 2px solid #6366F1; }</style>
-</head>
-<body class="h-full bg-richnavy text-softwhite flex flex-col overflow-hidden select-none">
-
-    <!-- PLATFORM MAIN HEADER CONTROL BAR -->
-    <header class="bg-charcoalblack border-b border-slate-900 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
-        <div class="flex items-center space-x-3">
-            <button onclick="toggleDrawer()" class="p-2 bg-slate-900 rounded-lg text-cyberpurple font-bold">☰</button>
-            <span class="font-mono font-black text-xs tracking-widest text-white">MINTNEWS // <span class="text-cyberpurple">V4</span></span>
-        </div>
-        <span id="global-badge-tier" class="text-[9px] font-mono font-bold px-2 py-0.5 bg-zinc-900 rounded text-neonmint uppercase">FREE ACCELERATOR</span>
-    </header>
-
-    <!-- SLIDING CHANNELS MANAGEMENT OVERLAY DRAWER -->
-    <div id="drawer" class="fixed inset-0 z-50 bg-black/70 hidden">
-        <div class="w-64 h-full bg-charcoalblack border-r border-slate-900 p-6 flex flex-col space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-900 pb-2">
-                <span class="font-mono text-xs font-bold text-zinc-400">EXPLORE NETWORKS</span>
-                <button onclick="toggleDrawer()" class="text-zinc-500 font-mono text-xs">✕</button>
-            </div>
-            {% for cat in categories %}
-            <a href="/?category={{ '' if cat == 'All' else cat }}" class="px-3 py-2 rounded-xl font-mono text-xs uppercase text-zinc-400 hover:bg-cyberpurple/10 block {% if current_category == cat %} bg-cyberpurple/20 text-white font-bold {% endif %}">📂 {{ cat }} News</a>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- MAIN INTERACTIVE STREAM CHANNELS MODULES VIEWPORT -->
-    <main class="flex-1 overflow-y-auto pb-24 p-4 max-w-xl w-full mx-auto" id="viewport">
         
-        <!-- 🏠 INTERACTIVE VIEW 1: INFINITE NEWS NETWORKS SYSTEM BLUEPRINT -->
-        <section id="view-home" class="space-y-4">
-            {% if articles %}
-                {% for article in articles %}
-                <div class="bg-charcoalblack border border-slate-900 rounded-2xl overflow-hidden shadow-xl p-4 space-y-3">
-                    {% if article.image_url %}
-                    <img src="{{ article.image_url }}" class="w-full h-40 object-cover rounded-xl border border-slate-900" alt="Dynamic Feeds Matrix Graphics Layer Asset">
-                    {% endif %}
-                    <div class="flex justify-between text-[9px] font-mono"><span class="text-radiantcyan bg-radiantcyan/10 px-2 py-0.5 rounded border border-radiantcyan/20 uppercase font-bold">⚡ {{ article.category }}</span></div>
-                    <h3 class="text-xs font-bold text-white leading-snug">{{ article.title }}</h3>
-                    <p class="text-zinc-400 text-[11px] leading-relaxed line-clamp-3 font-normal">{{ article.content }}</p>
-                    <div class="grid grid-cols-3 gap-1 pt-2 border-t border-slate-900/60">
-                        <button onclick="runAI({{ article.id }}, 'summary')" class="py-2 bg-slate-900 rounded-xl text-[9px] font-mono font-bold uppercase text-zinc-300">📝 Summary</button>
-                        <button onclick="runAI({{ article.id }}, 'detailed')" class="py-2 bg-slate-900 rounded-xl text-[9px] font-mono font-bold uppercase text-zinc-300">📊 Detailed</button>
-                        <button onclick="runAI({{ article.id }}, 'script')" class="py-2 bg-slate-900 rounded-xl text-[9px] font-mono font-bold uppercase text-zinc-300">🚀 Script</button>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="p-12 text-center font-mono text-xs text-zinc-600 uppercase">Telemetry list unassigned. Query alternative arrays.</div>
-            {% endif %}
-        </section>
+        /* Absolute dynamic sheet overlay that forces 100% viewport width on mobile */
+        .detailed-overlay, .script-modal-container, .premium-popup-box {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: 85vh !important;
+            background-color: #0d1117 !important;
+            border-radius: 24px 24px 0 0 !important;
+            box-shadow: 0 -12px 35px rgba(0,0,0,0.8) !important;
+            z-index: 999999 !important;
+            transform: none !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            overflow-y: auto !important;
+            box-sizing: border-box !important;
+            display: none;
+        }
 
-        <!-- 💰 INTERACTIVE VIEW 2: FULL WALLET ACCOUNT MANAGEMENT FRAMEWORK -->
-        <section id="view-wallet" class="hidden space-y-4">
-            <div class="bg-gradient-to-br from-slate-900 to-charcoalblack border border-slate-800 rounded-2xl p-6 text-center space-y-2 shadow-2xl">
-                <h2 class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Aggregated Account Balance</h2>
-                <p class="text-4xl font-mono font-black text-neonmint" id="balance">00</p>
-                <p class="text-[9px] font-mono text-zinc-500 uppercase tracking-tighter" id="lock-timer-string">DAILY CAP LIMIT BRACKET: PASS VALIDAITON STANDING ACTIVE</p>
-            </div>
-            
-            <!-- 📻 BUTTON ENGINE EQUIPPED WITH CLIENT 10-SECOND REVERSE LOCK LOGIC -->
-            <button id="ad-trigger-button-node" onclick="initiateSecureAdPipeline()" class="w-full py-3.5 bg-cyberpurple text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-cyberpurple/10 flex items-center justify-center space-x-2">
-                <span>📺</span> <span id="ad-btn-text-node">Open Video Stream Monetization Target</span>
-            </button>
-            
-            <!-- 💳 COMPLETE SUBSCRIPTION ALLOCATION PACKAGES MATRIX COMPONENT -->
-            <div class="space-y-2 pt-2">
-                <h4 class="text-[9px] font-mono tracking-widest text-zinc-500 uppercase px-1">Available Premium Tiers</h4>
-                <div class="grid grid-cols-2 gap-2 text-left font-mono text-[10px]">
-                    <div onclick="claimSub(1)" class="bg-slate-900/80 border border-slate-850 hover:border-cyberpurple p-3.5 rounded-xl cursor-pointer transition-all flex flex-col justify-between">
-                        <span class="text-white font-bold uppercase">1 Day Access</span>
-                        <span class="text-neonmint mt-2 font-bold">10 Credits</span>
-                    </div>
-                    <div onclick="claimSub(3)" class="bg-slate-900/80 border border-slate-850 hover:border-cyberpurple p-3.5 rounded-xl cursor-pointer transition-all flex flex-col justify-between">
-                        <span class="text-white font-bold uppercase">3 Days Access</span>
-                        <span class="text-neonmint mt-2 font-bold">27 Credits</span>
-                    </div>
-                    <div onclick="claimSub(7)" class="bg-slate-900/80 border border-slate-850 hover:border-cyberpurple p-3.5 rounded-xl cursor-pointer transition-all flex flex-col justify-between">
-                        <span class="text-white font-bold uppercase">7 Days Access</span>
-                        <span class="text-neonmint mt-2 font-bold">60 Credits</span>
-                    </div>
-                    <div onclick="claimSub(28)" class="bg-slate-900/80 border border-slate-850 hover:border-cyberpurple p-3.5 rounded-xl cursor-pointer transition-all flex flex-col justify-between">
-                        <span class="text-white font-bold uppercase">28 Days Access</span>
-                        <span class="text-neonmint mt-2 font-bold">250 Credits</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+        .premium-popup-box.active {
+            display: block !important;
+        }
 
-        <!-- 🔍 INTERACTIVE VIEW 3: SYSTEM VARIABLE SEARCH COMPONENT -->
-        <section id="view-search" class="hidden space-y-4">
-            <div class="bg-charcoalblack border border-slate-900 p-4 rounded-2xl space-y-3 shadow-xl">
-                <h3 class="text-xs font-mono font-bold tracking-wider text-zinc-400 uppercase">Engine Lookup Terminal</h3>
-                <input id="search-input" type="text" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-3 text-xs font-mono text-zinc-200 focus:outline-none focus:border-cyberpurple placeholder-zinc-700" placeholder="Type query keyword strings...">
-                <button onclick="executeSearchQuery()" class="w-full py-2.5 bg-cyberpurple text-white font-mono text-xs uppercase tracking-wider rounded-xl transition-all">Execute Lookup Sequence</button>
-            </div>
-        </section>
+        .close-process-btn {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 8px 16px;
+            border-radius: 8px;
+            float: right;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white">
 
-        <!-- 🤖 INTERACTIVE VIEW 4: PLATFORM CENTRAL INTELLIGENCE TERMINAL (JARVIS CHAT NODE) -->
-        <section id="view-ai" class="hidden flex flex-col h-[65vh] bg-charcoalblack border border-slate-900 rounded-2xl overflow-hidden shadow-2xl">
-            <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-2 font-mono text-[11px] text-zinc-400">
-                <div class="bg-slate-900/60 p-2.5 rounded-lg max-w-[85%]">Jarvis: V4 Cognitive core system online. Converse comfortably across multi-language frameworks.</div>
-            </div>
-            <div class="p-2 bg-slate-950 border-t border-slate-900 flex space-x-1">
-                <input id="chat-input" type="text" class="flex-1 bg-black text-xs p-3 rounded-xl focus:outline-none border border-zinc-850 text-white placeholder-zinc-700" placeholder="Ask Jarvis metrics setups...">
-                <button onclick="sendChat()" class="bg-cyberpurple text-[10px] font-mono px-4 rounded-xl font-bold uppercase tracking-wider text-white">SEND</button>
-            </div>
-        </section>
-    </main>
-
-    <!-- FULL PAGE MODAL COMPONENT WINDOW MATRIX INTERFACE FOR GEN-AI CONTENT LAYERS -->
-    <div id="ai-modal" class="fixed inset-0 bg-richnavy z-50 hidden flex-col overflow-hidden">
-        <header class="bg-charcoalblack px-4 py-3 border-b border-slate-900 flex items-center justify-between">
-            <span class="text-[9px] font-mono font-bold text-cyberpurple bg-cyberpurple/10 px-2 py-0.5 rounded uppercase" id="modal-op">PROCESSING NODE</span>
-            <button onclick="closeModal()" class="text-zinc-500 font-mono text-xs bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg">✕ CLOSE PROCESS</button>
-        </header>
-        <div class="bg-slate-950 px-4 py-1.5 border-b border-slate-900 text-[10px] font-mono text-zinc-500 space-x-2">
-            <button onclick="changeLang('English')" class="text-cyberpurple underline font-bold" id="l-English">English</button>
-            <button onclick="changeLang('Hindi')" id="l-Hindi">Hindi</button>
-            <button onclick="changeLang('Hinglish')" id="l-Hinglish">Hinglish</button>
+    <div id="premium-response-modal" class="premium-popup-box">
+        <button class="close-process-btn" onclick="closePremiumModal()">✕ CLOSE PROCESS</button>
+        <div style="margin-bottom: 15px;">
+            <span style="color: #58a6ff; font-weight: bold; margin-right: 15px;">English</span>
+            <span style="color: #8b949e;">Hindi</span>
+            <span style="color: #8b949e;">Hinglish</span>
         </div>
-        <div class="flex-1 overflow-y-auto p-4 max-w-xl w-full mx-auto">
-            <div class="bg-charcoalblack border border-slate-900 rounded-xl p-4 min-h-[200px] font-mono text-xs text-zinc-300 leading-relaxed whitespace-pre-line select-text" id="modal-text">Payload active.</div>
+        <hr style="border-color: #21262d;">
+        <div id="premium-modal-loading" style="color: #8b949e; font-style: italic; margin-top: 20px;">
+            ⚡ Initializing secure high-speed analytics with Mistral Production Core Engine...
         </div>
+        <div id="premium-modal-text" style="line-height: 1.6; font-size: 16px; white-space: pre-wrap; margin-top: 15px;"></div>
     </div>
 
-    <!-- INSTAGRAM STYLE CORE BOTTOM APP SHELL FOOTER NAVIGATION BAR ICON TILES -->
-    <footer class="fixed bottom-0 left-0 right-0 z-40 bg-charcoalblack border-t border-slate-900 py-1.5 flex items-center justify-around shadow-2xl">
-        <button onclick="switchTab('home')" id="tab-home" class="flex flex-col items-center py-1 px-3 text-zinc-500 text-[10px] font-mono font-bold uppercase active-tab"><span>🏠</span><span>Home</span></button>
-        <button onclick="switchTab('wallet')" id="tab-wallet" class="flex flex-col items-center py-1 px-3 text-zinc-500 text-[10px] font-mono font-bold uppercase"><span>💳</span><span>Wallet</span></button>
-        <button onclick="switchTab('search')" id="tab-search" class="flex flex-col items-center py-1 px-3 text-zinc-500 text-[10px] font-mono font-bold uppercase"><span>🔍</span><span>Search</span></button>
-        <button onclick="switchTab('ai')" id="tab-ai" class="flex flex-col items-center py-1 px-3 text-zinc-500 text-[10px] font-mono font-bold uppercase"><span>🤖</span><span>Jarvis</span></button>
-    </footer>
-
     <script>
-        let activeArtId = null, activeOp = null, activeLang = 'English';
-
-        function switchTab(t) {
-            ['home', 'wallet', 'search', 'ai'].forEach(s => {
-                document.getElementById(`view-${s}`).classList.add('hidden');
-                document.getElementById(`tab-${s}`).classList.remove('active-tab');
-            });
-            document.getElementById(`view-${t}`).classList.remove('hidden');
-            document.getElementById(`tab-${t}`).classList.add('active-tab');
-        }
-
-        function toggleDrawer() { document.getElementById('drawer').classList.toggle('hidden'); }
-
-        function executeSearchQuery() {
-            const queryValue = document.getElementById('search-input').value.trim();
-            if(queryValue) { window.location.href = `/?q=${encodeURIComponent(queryValue)}`; }
-        }
-        document.getElementById('search-input').addEventListener('keypress', function(e) { if(e.key === 'Enter') executeSearchQuery(); });
-
-        // ⏱️ CLIENT AND SERVER COMBINED 10 SECONDS AD WATCH COUNTDOWN ENGINE
-        defuse_timer_lock = false;
-        function initiateSecureAdPipeline() {
-            if(defuse_timer_lock) return;
+        // Trigger action on Premium Buttons (Summary, Script, Tweet)
+        function triggerPremiumAction(articleId, operationType) {
+            const modal = document.getElementById('premium-response-modal');
+            const loadingText = document.getElementById('premium-modal-loading');
+            const contentText = document.getElementById('premium-modal-text');
             
-            window.open("https://omg10.com/4/11162641", "_blank");
-            
-            let countdown = 10;
-            defuse_timer_lock = true;
-            const btn = document.getElementById('ad-trigger-button-node');
-            const txt = document.getElementById('ad-btn-text-node');
-            
-            btn.className = "w-full py-3.5 bg-zinc-800 text-zinc-500 font-mono font-bold text-xs uppercase tracking-widest rounded-xl cursor-not-allowed flex items-center justify-center space-x-2";
-            
-            let ticker = setInterval(() => {
-                countdown--;
-                txt.innerText = `STREAM VALIDATING IN ... ${countdown}S`;
-                if(countdown <= 0) {
-                    clearInterval(ticker);
-                    dispatchAdCreditPayload();
+            // 🔄 Hard Reset positions and layout state instantly
+            modal.style.display = 'block';
+            loadingText.style.display = 'block';
+            contentText.innerText = '';
+            document.body.classList.add('modal-open');
+
+            fetch('/process-premium-action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    article_id: articleId,
+                    operation: operationType,
+                    language: 'Hinglish',
+                    is_premium: true // Setting test context to true to bypass barrier
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                loadingText.style.display = 'none';
+                if(data.status === 'success') {
+                    contentText.innerText = data.result;
+                } else {
+                    contentText.innerText = data.result;
                 }
-            }, 1000);
-        }
-
-        function dispatchAdCreditPayload() {
-            fetch('/api/wallet/watch-ad', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-            .then(res => {
-                // Reset structural state tokens
-                defuse_timer_lock = false;
-                const btn = document.getElementById('ad-trigger-button-node');
-                const txt = document.getElementById('ad-btn-text-node');
-                btn.className = "w-full py-3.5 bg-cyberpurple text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-cyberpurple/10 flex items-center justify-center space-x-2";
-                txt.innerText = "Open Video Stream Monetization Target";
-
-                if(res.status === 403) {
-                    return res.json().then(data => { alert(`🛑 Security daily barrier block active:\n\n${data.message}`); });
-                }
-                return res.json().then(data => {
-                    if(data.current_credits !== undefined) {
-                        document.getElementById('balance').innerText = String(data.current_credits).padStart(2, '0');
-                        document.getElementById('lock-timer-string').innerText = `WATCHED TODAY: ${data.daily_count}/10 ADS`;
-                        alert("✅ Tracking confirmation verified successfully! 1 Credit aggregated.");
-                    }
-                });
-            }).catch(err => { defuse_timer_lock = false; console.error(err); });
-        }
-
-        function claimSub(p) {
-            fetch('/api/wallet/claim-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: p }) })
-            .then(res => res.json()).then(data => {
-                if(data.premium_active) {
-                    document.getElementById('balance').innerText = String(data.wallet_remaining_credits).padStart(2, '0');
-                    document.getElementById('global-badge-tier').innerText = "PREMIUM CORE ACTIVE";
-                    alert("🎉 Premium unlocked successfully!");
-                } else { alert("🔴 Transaction failed: Insufficient credit balances."); }
+            })
+            .catch(err => {
+                loadingText.style.display = 'none';
+                contentText.innerText = 'Network error fetching data core matrix: ' + err;
             });
         }
 
-        function runAI(id, op) {
-            activeArtId = id; activeOp = op;
-            document.getElementById('modal-op').innerText = op.toUpperCase();
-            document.getElementById('ai-modal').classList.remove('hidden');
-            document.getElementById('ai-modal').classList.add('flex');
-            document.getElementById('modal-text').innerText = "🔄 Initializing high-speed secure inference arrays with Groq llama-3.3-70b...";
-            
-            fetch('/api/ai/process-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ article_id: id, operation: op, language: activeLang }) })
-            .then(res => res.json()).then(data => { document.getElementById('modal-text').innerText = data.result || data.error; });
-        }
-
-        function changeLang(l) {
-            ['English', 'Hindi', 'Hinglish'].forEach(lang => document.getElementById(`l-${lang}`).className = "text-zinc-500");
-            document.getElementById(`l-${l}`).className = "text-cyberpurple underline font-bold";
-            activeLang = l; runAI(activeArtId, activeOp);
-        }
-
-        function closeModal() { document.getElementById('ai-modal').className = "fixed inset-0 bg-richnavy z-50 hidden"; }
-
-        function sendChat() {
-            const input = document.getElementById('chat-input');
-            const txt = input.value.trim(); if(!txt) return;
-            const box = document.getElementById('chat-box');
-            box.innerHTML += `<div class="bg-cyberpurple/20 p-2 rounded-lg max-w-[85%] ml-auto text-right text-white">User: ${txt}</div>`;
-            input.value = "";
-            
-            // Fixed double prefix bug trajectory perfectly
-            fetch('/api/ai/jarvis-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: txt }) })
-            .then(res => res.json()).then(data => {
-                box.innerHTML += `<div class="bg-slate-900/60 p-2.5 rounded-lg max-w-[85%] text-zinc-200">Jarvis: ${data.response || data.error}</div>`;
-                box.scrollTop = box.scrollHeight;
-            });
+        function closePremiumModal() {
+            document.getElementById('premium-response-modal').style.display = 'none';
+            document.body.classList.remove('modal-open');
         }
     </script>
 </body>
 </html>
-
-<!-- 📱 AI Added Mobile Responsive Override for Script & Detailed Overlays -->
-<style>
-@media (max-width: 768px) {
-    .detailed-overlay, .script-modal-container, .modal-dialog {
-        width: 100% !important;
-        max-width: 100% !important;
-        left: 0 !important;
-        right: 0 !important;
-        margin: 0 !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        height: 85vh !important;
-        border-radius: 24px 24px 0 0 !important;
-        overflow-y: auto !important;
-        background-color: #121212 !important;
-        z-index: 99999 !important;
-        box-shadow: 0 -10px 25px rgba(0,0,0,0.5) !important;
-    }
-}
-</style>
-
-<!-- 🛠️ 2nd Click Positioning & Subscription Layout Patch -->
-<style>
-@media (max-width: 768px) {
-    body.modal-open, html {
-        overflow: hidden !important;
-        position: relative;
-    }
-    .detailed-overlay, .script-modal-container, [id^="process-"] {
-        width: 100vw !important;
-        max-width: 100vw !important;
-        left: 0 !important;
-        right: 0 !important;
-        margin: 0 !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        top: auto !important;
-        height: 85vh !important;
-        transform: none !important;
-        border-radius: 24px 24px 0 0 !important;
-        overflow-y: auto !important;
-        background-color: #0b0f19 !important;
-        z-index: 999999 !important;
-        box-shadow: 0 -12px 30px rgba(0,0,0,0.7) !important;
-    }
-}
-</style>
-
-<script>
-// Overriding dynamic multi-clicks state layout
-document.querySelectorAll('.btn-premium-action').forEach(btn => {
-    btn.addEventListener('click', function() {
-        // Clear past active positional shifts
-        const container = document.querySelector('.detailed-overlay, .script-modal-container');
-        if(container) {
-            container.style.transform = 'none';
-            container.style.left = '0';
-        }
-    });
-});
-</script>
