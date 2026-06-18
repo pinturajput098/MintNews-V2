@@ -6,59 +6,42 @@ import os
 
 ai_bp = Blueprint('ai_bp', __name__)
 
-def query_gemini_bulletproof(prompt):
-    """Queries Google Gemini production endpoints with intelligent rate-limit tracking"""
-    api_key = os.environ.get('GEMINI_API_KEY')
+def query_together_ai(prompt, system_instruction=None):
+    """Queries Together AI endpoint using ultra-fast Llama-3-8b infrastructure"""
+    api_key = os.environ.get('TOGETHER_API_KEY')
     if not api_key:
-        return {"error": "GEMINI_API_KEY is missing in Render Environment Settings."}
+        return {"error": "TOGETHER_API_KEY is missing in Render settings."}
 
-    no_proxies = {
-        "http": None,
-        "https": None
-    }
-
-    # 🚀 Prioritizing the absolute stable production layouts
-    test_matrix = [
-        ("v1", "gemini-2.0-flash"),
-        ("v1beta", "gemini-2.0-flash"),
-        ("v1beta", "gemini-1.5-pro")
-    ]
+    no_proxies = {"http": None, "https": None}
+    url = "https://api.together.xyz/v1/chat/completions"
     
-    payload = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }],
-        "generationConfig": {
-            "temperature": 0.5,
-            "maxOutputTokens": 800
-        }
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
     }
 
-    errors = []
-    for version, model in test_matrix:
-        try:
-            url = f"https://generativelanguage.googleapis.com/{version}/models/{model}:generateContent?key={api_key}"
-            response = requests.post(url, json=payload, proxies=no_proxies, timeout=12)
-            res_data = response.json()
-            
-            if 'candidates' in res_data and len(res_data['candidates']) > 0:
-                text = res_data['candidates'][0]['content']['parts'][0]['text']
-                return {"success": True, "text": text}
-            
-            if 'error' in res_data:
-                err_msg = res_data['error'].get('message', '')
-                status = res_data['error'].get('status', '')
-                
-                # 🛑 CRITICAL FIX: If Google says rate limit is hit, alert the user directly instead of failing silently
-                if status == "RESOURCE_EXHAUSTED" or "quota" in err_msg.lower():
-                    return {"error": "Google Free Tier Rate Limit Hit (15 RPM). Please wait 30 seconds and try again!"}
-                
-                errors.append(f"{model}({version}): {err_msg}")
-        except Exception as e:
-            errors.append(f"{model}({version}): {str(e)}")
-            continue
-            
-    return {"error": " | ".join(errors)}
+    messages = []
+    if system_instruction:
+        messages.append({"role": "system", "content": system_instruction})
+    messages.append({"role": "user", "content": prompt})
+
+    payload = {
+        "model": "meta-llama/Llama-3-8b-instruct",
+        "messages": messages,
+        "max_tokens": 600,
+        "temperature": 0.7
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, proxies=no_proxies, timeout=10)
+        res_data = response.json()
+        
+        if 'choices' in res_data and len(res_data['choices']) > 0:
+            return {"success": True, "text": res_data['choices'][0]['message']['content']}
+        else:
+            return {"error": f"TogetherAI Error: {str(res_data)}"}
+    except Exception as e:
+        return {"error": f"Connection Timeout: {str(e)}"}
 
 @ai_bp.route('/process-article', methods=['POST'])
 def process_article():
@@ -69,28 +52,28 @@ def process_article():
     
     article = NewsArticle.query.get(int(article_id))
     if not article:
-        return jsonify({'result': 'Error: News article target reference missing.'})
+        return jsonify({'result': 'Error: News article reference target missing.'})
 
-    prompt = f"Perform operation '{operation_type}' on this news article text. Respond extensively and beautifully in fluid {target_lang}. Content: {article.content}"
+    prompt = f"Perform operation '{operation_type}' on this news article text. Respond extensively in fluid {target_lang}. Content: {article.content}"
     
-    result = query_gemini_bulletproof(prompt)
+    result = query_together_ai(prompt)
     if "success" in result:
         return jsonify({'status': 'success', 'result': result["text"]})
     else:
-        return jsonify({'result': f"Gemini Direct Error: {result['error']}"})
+        return jsonify({'result': result["error"]})
 
 @ai_bp.route('/jarvis-chat', methods=['POST'])
 def jarvis_chat():
     data = request.get_json() or {}
-    user_prompt = data.get('prompt', '')
+    user_prompt = data.get('prompt', '').strip()
     
     if not user_prompt:
         return jsonify({'response': 'Prompt query cannot be empty.'})
 
-    prompt = f"You are Jarvis, the highly advanced system core AI of MintNews V4. Help the user with an analytical response natively in conversational Hinglish. User prompt: {user_prompt}"
+    system_instruction = "You are Jarvis, the core system AI engine of MintNews V4. Respond instantly, smartly, and conversationally in fluid Hinglish (mixed Hindi/English)."
     
-    result = query_gemini_bulletproof(prompt)
+    result = query_together_ai(user_prompt, system_instruction=system_instruction)
     if "success" in result:
         return jsonify({'response': result["text"]})
     else:
-        return jsonify({'response': f"Jarvis Native Error: {result['error']}"})
+        return jsonify({'response': f"Jarvis Error: {result['error']}"})
