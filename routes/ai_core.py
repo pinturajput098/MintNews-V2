@@ -40,33 +40,48 @@ def query_mistral_production(prompt, system_instruction=None):
     except Exception as e:
         return {"error": str(e)}
 
-@ai_bp.route('/category/<cat_name>', methods=['GET'])
-def get_category_news(cat_name):
-    clean_cat = cat_name.strip().lower()
+# 🔄 LEGACY COMPATIBILITY ROUTE: Fixed so old frontend clicks instantly hit Mistral
+@ai_bp.route('/process-article', methods=['POST'])
+def process_article():
+    data = request.get_json() or {}
+    article_id = data.get('article_id')
+    operation_type = data.get('operation') # 'script', 'summary', or 'detailed'
+    target_lang = data.get('language', 'Hinglish')
     
-    # 🚫 BLOCKED CATEGORIES: Strict drop for crypto, forex, tech
-    if clean_cat in ['crypto', 'forex', 'tech']:
-        return jsonify({'message': 'Category deactivated or restricted'}), 403
-        
-    articles = NewsArticle.query.filter(NewsArticle.category.ilike(f"%{clean_cat}%")).order_by(NewsArticle.id.desc()).limit(15).all()
-    if not articles:
-        articles = NewsArticle.query.order_by(NewsArticle.id.desc()).limit(10).all()
-    return render_template('category.html', articles=articles, active_category=cat_name)
+    article = NewsArticle.query.get(int(article_id))
+    if not article:
+        return jsonify({'result': 'Error: Article context missing.'})
 
+    if operation_type == 'script':
+        prompt = f"Convert this news into a detailed video script layout with visual anchors in {target_lang}. Content: {article.content}"
+    elif operation_type == 'summary':
+        prompt = f"Generate a sharp, high-speed business analytical summary with pointers in {target_lang}. Content: {article.content}"
+    elif operation_type in ['detailed', 'detailed-dive']:
+        prompt = f"Provide an extensive, deeply researched analytical breakdown of this news article in {target_lang}. Content: {article.content}"
+    else:
+        prompt = f"Perform operation '{operation_type}' on this news text. Respond in {target_lang}. Content: {article.content}"
+
+    result = query_mistral_production(prompt)
+    if "success" in result:
+        return jsonify({'status': 'success', 'result': result["text"]})
+    else:
+        return jsonify({'result': result["error"]})
+
+# 👑 NEW SUBSCRIPTION GATEWAY: (Kept completely alive for future subscription panel tokens)
 @ai_bp.route('/process-premium-action', methods=['POST'])
 def process_premium_action():
     data = request.get_json() or {}
     article_id = data.get('article_id')
-    operation_type = data.get('operation') # 'script', 'summary', 'tweet'
+    operation_type = data.get('operation')
     target_lang = data.get('language', 'Hinglish')
     
-    # 🔒 EXCLUSIVE ENFORCEMENT: Enforcing strict simulation check
-    is_user_premium = data.get('is_premium', False) 
+    # Simple simulated premium check
+    is_user_premium = data.get('is_premium', True) 
     
     if operation_type in ['script', 'summary', 'tweet'] and not is_user_premium:
         return jsonify({
             'status': 'premium_locked',
-            'result': '🔒 Subscription Required! Script, Summary, and Tweet tools are exclusive to MintNews Premium Members.'
+            'result': '🔒 Subscription Required! Upgrade to MintNews Premium to unlock this tool.'
         })
 
     article = NewsArticle.query.get(int(article_id))
@@ -74,11 +89,11 @@ def process_premium_action():
         return jsonify({'result': 'Error: Article missing.'})
 
     if operation_type == 'script':
-        prompt = f"Convert this news into a video script layout with visual cues in {target_lang}. Content: {article.content}"
+        prompt = f"Convert this news into a video script layout in {target_lang}. Content: {article.content}"
     elif operation_type == 'summary':
-        prompt = f"Generate a clean analytical summary with pointers in {target_lang}. Content: {article.content}"
+        prompt = f"Generate a clean analytical summary in {target_lang}. Content: {article.content}"
     elif operation_type == 'tweet':
-        prompt = f"Create an engaging X/Twitter thread format in {target_lang}. Content: {article.content}"
+        prompt = f"Create an engaging viral X/Twitter thread layout in {target_lang}. Content: {article.content}"
     else:
         prompt = f"Process for '{operation_type}' in {target_lang}. Content: {article.content}"
 
