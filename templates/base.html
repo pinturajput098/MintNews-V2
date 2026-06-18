@@ -345,3 +345,121 @@ document.querySelectorAll('.btn-premium-action').forEach(btn => {
     }
 }
 </style>
+
+<!-- 👑 PREMIUM SUBSCRIPTION LOCK & TOP-RIGHT CROSS BUTTON PATCH -->
+<style>
+/* Pure Floating Top-Right Close Button */
+.ui-custom-close-btn {
+    position: fixed !important;
+    top: 15px !important;
+    right: 15px !important;
+    background: #e11d48 !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    z-index: 10000000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+}
+
+/* Subscription Lock Overlay UI */
+.premium-lock-screen {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 85vh !important;
+    background: #0f172a !important;
+    color: #ffffff !important;
+    z-index: 9999999 !important;
+    display: none;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 30px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+.premium-lock-screen.active {
+    display: flex !important;
+}
+
+.premium-lock-title {
+    font-size: 24px !important;
+    font-weight: bold !important;
+    color: #fbbf24 !important;
+    margin-bottom: 10px !important;
+}
+</style>
+
+<!-- Hidden Premium Lock Modal Container -->
+<div id="premium-lock-modal" class="premium-lock-screen">
+    <button class="ui-custom-close-btn" onclick="closePremiumLock()">❌</button>
+    <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
+    <div class="premium-lock-title">MintNews Premium Feature</div>
+    <p style="color: #94a3b8; max-width: 80%; margin-bottom: 25px;">
+        Summary, Script, and Tweet Generator are locked under the premium subscription. Upgrade your plan now to unlock all elite AI modules!
+    </p>
+    <button style="background: #2563eb; color: white; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer;">
+        Join Premium Subscription
+    </button>
+</div>
+
+<script>
+// Dynamic Button Interceptor Logic
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Inject Floating ❌ Button dynamically into the existing detailed/script overlay windows
+    const oldOverlays = document.querySelectorAll('.detailed-overlay, .script-modal-container');
+    oldOverlays.forEach(overlay => {
+        // Checking if close button already exists to avoid duplication
+        if (!overlay.querySelector('.ui-custom-close-btn')) {
+            const crossBtn = document.createElement('button');
+            crossBtn.className = 'ui-custom-close-btn';
+            crossBtn.innerHTML = '❌';
+            crossBtn.onclick = function() {
+                overlay.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                // Fallback toggle for custom templates
+                const closeAction = overlay.querySelector('[class*="close"], [id*="close"]');
+                if(closeAction) closeAction.click();
+            };
+            overlay.appendChild(crossBtn);
+        }
+    });
+
+    // 2. Lock Interception Framework
+    // Assuming standard button classes or text labels matching Summary / Script
+    const actionButtons = document.querySelectorAll('button, a, .btn');
+    actionButtons.forEach(btn => {
+        const text = btn.innerText.toLowerCase();
+        if (text.includes('summary') || text.includes('script')) {
+            // Hijack click events safely
+            btn.addEventListener('click', function(e) {
+                // Check premium simulation flag - change to true when someone has active subscription
+                const hasSubscription = false; 
+                
+                if (!hasSubscription) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    document.getElementById('premium-lock-modal').classList.add('active');
+                    document.body.classList.add('modal-open');
+                }
+            }, true);
+        }
+    });
+});
+
+function closePremiumLock() {
+    document.getElementById('premium-lock-modal').classList.remove('active');
+    document.body.classList.remove('modal-open');
+}
+</script>
