@@ -3,52 +3,48 @@ from extensions import db
 from models import NewsArticle
 import requests
 import os
-import time
 
 ai_bp = Blueprint('ai_bp', __name__)
 
-def query_gemini_final(prompt):
-    """Ultimate stable Google Gemini API gateway with smart recovery handles"""
-    api_key = os.environ.get('GEMINI_API_KEY')
+def query_mistral_free(prompt, system_instruction=None):
+    """Queries Mistral AI La Plateforme official high-speed free tier"""
+    api_key = os.environ.get('MISTRAL_API_KEY')
     if not api_key:
-        return {"error": "GEMINI_API_KEY is missing in Render Environment settings."}
+        return {"error": "MISTRAL_API_KEY is missing in Render environment variables."}
 
     no_proxies = {"http": None, "https": None}
+    url = "https://api.mistral.ai/v1/chat/completions"
     
-    # Absolute production stable endpoints
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
-    
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": 0.6,
-            "maxOutputTokens": 800
-        }
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
     }
 
-    # 🔄 Smart Retry: Agar rate limit hit bhi ho, toh code automatic thoda wait karke wapas chalega
-    for attempt in range(2):
-        try:
-            response = requests.post(url, json=payload, proxies=no_proxies, timeout=12)
-            res_data = response.json()
-            
-            if 'candidates' in res_data and len(res_data['candidates']) > 0:
-                text = res_data['candidates'][0]['content']['parts'][0]['text']
-                return {"success": True, "text": text}
-            
-            if 'error' in res_data:
-                status = res_data['error'].get('status', '')
-                if status == "RESOURCE_EXHAUSTED" and attempt == 0:
-                    time.sleep(2)  # Cooldown wait step
-                    continue
-                return {"error": res_data['error'].get('message', str(res_data))}
-                
-        except Exception as e:
-            if attempt == 0:
-                continue
-            return {"error": f"Network Error: {str(e)}"}
-            
-    return {"error": "Google Core engine busy. Try hitting the action again!"}
+    messages = []
+    if system_instruction:
+        messages.append({"role": "system", "content": system_instruction})
+    messages.append({"role": "user", "content": prompt})
+
+    # Using the absolute fast and stable free model on La Plateforme
+    payload = {
+        "model": "mistral-small-latest",
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 600
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, proxies=no_proxies, timeout=12)
+        res_data = response.json()
+        
+        if 'choices' in res_data and len(res_data['choices']) > 0:
+            return {"success": True, "text": res_data['choices'][0]['message']['content']}
+        elif 'error' in res_data:
+            return {"error": res_data['error'].get('message', str(res_data))}
+        else:
+            return {"error": f"Structural mismatch: {str(res_data)}"}
+    except Exception as e:
+        return {"error": f"Mistral Network Timeout: {str(e)}"}
 
 @ai_bp.route('/process-article', methods=['POST'])
 def process_article():
@@ -59,15 +55,15 @@ def process_article():
     
     article = NewsArticle.query.get(int(article_id))
     if not article:
-        return jsonify({'result': 'Error: Target article missing.'})
+        return jsonify({'result': 'Error: News node missing.'})
 
-    prompt = f"Perform operation '{operation_type}' on this news article text. Respond comprehensively in {target_lang}. Content: {article.content}"
+    prompt = f"Perform operation '{operation_type}' on this news article text. Respond extensively in fluid {target_lang}. Content: {article.content}"
     
-    result = query_gemini_final(prompt)
+    result = query_mistral_free(prompt)
     if "success" in result:
         return jsonify({'status': 'success', 'result': result["text"]})
     else:
-        return jsonify({'result': f"Gemini Error: {result['error']}"})
+        return jsonify({'result': f"Mistral Error: {result['error']}"})
 
 @ai_bp.route('/jarvis-chat', methods=['POST'])
 def jarvis_chat():
@@ -77,9 +73,9 @@ def jarvis_chat():
     if not user_prompt:
         return jsonify({'response': 'Prompt query cannot be empty.'})
 
-    prompt = f"You are Jarvis, the system core AI of MintNews V4. Help the user natively in fluid conversational Hinglish. User prompt: {user_prompt}"
+    system_instruction = "You are Jarvis, the core system AI engine of MintNews V4. Respond instantly, smartly, and conversationally in fluid Hinglish."
     
-    result = query_gemini_final(prompt)
+    result = query_mistral_free(user_prompt, system_instruction=system_instruction)
     if "success" in result:
         return jsonify({'response': result["text"]})
     else:
