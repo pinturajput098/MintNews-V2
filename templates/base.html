@@ -463,3 +463,137 @@ function closePremiumLock() {
     document.body.classList.remove('modal-open');
 }
 </script>
+
+<!-- 🛠️ 100% FIXED PREMIUM SYNC, REDIRECT TO WALLET & INDEPENDENT FLOATING CROSS BUTTON -->
+<style>
+/* Absolute Top Right Floating Close Button Rule */
+.global-floating-close-btn {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    z-index: 2147483647 !important; /* Forces it to stay above all elements */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.6) !important;
+}
+
+/* Updated Locked Screen Layout to fit custom boundaries */
+.premium-lock-screen {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 85vh !important;
+    background: #0b0f19 !important;
+    color: #ffffff !important;
+    z-index: 99999999 !important;
+    display: none;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 30px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+.premium-lock-screen.active {
+    display: flex !important;
+}
+</style>
+
+<!-- Standard Premium Lock Modal -->
+<div id="premium-lock-modal" class="premium-lock-screen">
+    <button class="global-floating-close-btn" onclick="closePremiumLock()">❌</button>
+    <div style="font-size: 55px; margin-bottom: 15px;">🔒</div>
+    <div style="font-size: 24px; font-weight: bold; color: #fbbf24; margin-bottom: 12px;">MintNews Premium Feature</div>
+    <p style="color: #94a3b8; max-width: 85%; margin-bottom: 30px; font-size: 15px;">
+        Summary, Script, and Tweet Generator require an active premium pass. Watch ads or swap credits in your wallet dashboard to activate immediately.
+    </p>
+    <button onclick="redirectToWallet()" style="background: #2563eb; color: white; border: none; padding: 14px 35px; font-size: 16px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(37,99,235,0.4);">
+        Go to Wallet / Watch Ads
+    </button>
+</div>
+
+<script>
+function redirectToWallet() {
+    // Dynamic redirection to your active wallet interface
+    window.location.href = '/wallet';
+}
+
+function closePremiumLock() {
+    document.getElementById('premium-lock-modal').classList.remove('active');
+    document.body.classList.remove('modal-open');
+}
+
+// Global UI Watcher Framework
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // Check if user is truly premium by looking for the "PREMIUM CORE ACTIVE" text inside the website header layout
+    const headerText = document.body.innerHTML || "";
+    const isUserPremium = headerText.includes("PREMIUM CORE ACTIVE");
+
+    // 1. Dynamic Cross Button Generator for Article/Detailed Overlays
+    setInterval(() => {
+        // Targets whatever element holds the detailed text or layout window
+        const contentContainers = document.querySelectorAll('.detailed-overlay, .script-modal-container, [id*="detailed"], [id*="process"]');
+        contentContainers.forEach(container => {
+            // Check visibility and verify if close button is already injected
+            if ((container.style.display === 'block' || container.classList.contains('active')) && !document.querySelector('.global-floating-close-btn-active')) {
+                
+                // Remove any old conflicting button copies first
+                const oldBtn = document.getElementById('global-article-close');
+                if(oldBtn) oldBtn.remove();
+
+                const crossBtn = document.createElement('button');
+                crossBtn.id = 'global-article-close';
+                crossBtn.className = 'global-floating-close-btn global-floating-close-btn-active';
+                crossBtn.innerHTML = '❌';
+                
+                crossBtn.onclick = function() {
+                    container.style.display = 'none';
+                    container.classList.remove('active');
+                    crossBtn.remove();
+                    document.body.classList.remove('modal-open');
+                    
+                    // Fallback click handle if the old codebase had hidden toggles
+                    const nativeClose = container.querySelector('[class*="close"], [id*="close"]');
+                    if(nativeClose) nativeClose.click();
+                };
+                
+                document.body.appendChild(crossBtn);
+            }
+        });
+    }, 600);
+
+    // 2. Dynamic Subscription Enforcer Interceptor
+    const allInteractiveElements = document.querySelectorAll('button, a, .btn');
+    allInteractiveElements.forEach(element => {
+        const textContent = element.innerText.toLowerCase();
+        if (textContent.includes('summary') || textContent.includes('script')) {
+            element.addEventListener('click', function(event) {
+                // If user is premium, bypass lock and let the system fetch data cleanly!
+                if (isUserPremium) {
+                    return; 
+                }
+                
+                // If not premium, trigger custom barrier
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                document.getElementById('premium-lock-modal').classList.add('active');
+                document.body.classList.add('modal-open');
+            }, true);
+        }
+    });
+});
+</script>
