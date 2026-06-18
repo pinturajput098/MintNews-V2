@@ -260,3 +260,24 @@
     </script>
 </body>
 </html>
+
+<!-- 📱 AI Added Mobile Responsive Override for Script & Detailed Overlays -->
+<style>
+@media (max-width: 768px) {
+    .detailed-overlay, .script-modal-container, .modal-dialog {
+        width: 100% !important;
+        max-width: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        margin: 0 !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        height: 85vh !important;
+        border-radius: 24px 24px 0 0 !important;
+        overflow-y: auto !important;
+        background-color: #121212 !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -10px 25px rgba(0,0,0,0.5) !important;
+    }
+}
+</style>
