@@ -597,3 +597,157 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
+<!-- 🔥 ULTIMATE PHONE BACK-BUTTON HIJACK, ABSOLUTE CROSS BUTTON & DYNAMIC WALLET ROUTER -->
+<style>
+/* Absolute Top-Right Floating Red Close Button */
+.master-floating-close-btn {
+    position: fixed !important;
+    top: 15px !important;
+    right: 15px !important;
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    z-index: 2147483647 !important; /* Forces visibility above everything */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
+}
+
+.premium-lock-screen {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 85vh !important;
+    background: #090d16 !important;
+    color: #ffffff !important;
+    z-index: 99999999 !important;
+    display: none;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 30px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+.premium-lock-screen.active { display: flex !important; }
+</style>
+
+<div id="premium-lock-modal" class="premium-lock-screen">
+    <button class="master-floating-close-btn" onclick="closePremiumLock()">❌</button>
+    <div style="font-size: 60px; margin-bottom: 10px;">🔒</div>
+    <div style="font-size: 24px; font-weight: bold; color: #fbbf24; margin-bottom: 10px;">MintNews Premium Feature</div>
+    <p style="color: #94a3b8; max-width: 85%; margin-bottom: 25px; font-size: 15px;">
+        Summary, Script, and Tweet tools are exclusive to Premium pass holders. Watch ads to credit your wallet instantly!
+    </p>
+    <button onclick="triggerWalletTabOpen()" style="background: #2563eb; color: white; border: none; padding: 14px 35px; font-size: 16px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+        Go to Wallet / Watch Ads
+    </button>
+</div>
+
+<script>
+// Smart Redirection Target to your actual Wallet tab or container
+function triggerWalletTabOpen() {
+    closePremiumLock();
+    
+    // 1. Try to search for bottom navbar Wallet button and click it dynamically
+    const walletNavBtn = document.querySelector('[class*="wallet"], [id*="wallet"], [href*="wallet"]');
+    if(walletNavBtn) {
+        walletNavBtn.click();
+        return;
+    }
+    
+    // 2. If it is an ID container based layout, slide it open directly
+    const walletSection = document.getElementById('wallet') || document.querySelector('.wallet-section');
+    if(walletSection) {
+        document.querySelectorAll('section, .tab-content').forEach(s => s.style.display = 'none');
+        walletSection.style.display = 'block';
+        return;
+    }
+    
+    // 3. Fallback redirect
+    window.location.href = '/wallet';
+}
+
+function closePremiumLock() {
+    document.getElementById('premium-lock-modal').classList.remove('active');
+    document.body.classList.remove('modal-open');
+    if(window.location.hash === '#modalopen') {
+        history.back(); // Clear browser history state safely
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const isUserPremium = document.body.innerHTML.includes("PREMIUM CORE ACTIVE");
+
+    // 📱 PHONE BACK BUTTON & CROSS BUTTON COUPLING INJECTOR
+    setInterval(() => {
+        const activeOverlays = document.querySelectorAll('.detailed-overlay, .script-modal-container, [id*="detailed"], [id*="process"]');
+        activeOverlays.forEach(overlay => {
+            const isVisible = overlay.style.display === 'block' || overlay.classList.contains('active');
+            
+            if (isVisible && !overlay.querySelector('.master-floating-close-btn')) {
+                
+                // 1. Create the high-visibility floating ❌ close button
+                const crossBtn = document.createElement('button');
+                crossBtn.className = 'master-floating-close-btn';
+                crossBtn.innerHTML = '❌';
+                
+                crossBtn.onclick = function() {
+                    overlay.style.display = 'none';
+                    overlay.classList.remove('active');
+                    crossBtn.remove();
+                    document.body.classList.remove('modal-open');
+                    if(window.location.hash === '#modalopen') history.back();
+                };
+                overlay.appendChild(crossBtn);
+
+                // 2. 🚀 BRAIN MOVE: Push artificial state into browser history. 
+                // Now phone's native hardware back button will just close the modal instead of closing the app!
+                if(window.location.hash !== '#modalopen') {
+                    window.location.hash = 'modalopen';
+                }
+            }
+        });
+    }, 500);
+
+    // Hardware Back Button Interception
+    window.addEventListener('hashchange', function() {
+        if (window.location.hash !== '#modalopen') {
+            // If user pressed hardware back button, close all active overlays instantly
+            document.querySelectorAll('.detailed-overlay, .script-modal-container, .premium-lock-screen').forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            });
+            const globalCross = document.querySelector('.master-floating-close-btn');
+            if(globalCross) globalCross.remove();
+            document.body.classList.remove('modal-open');
+        }
+    });
+
+    // Premium tools interception layer
+    document.querySelectorAll('button, a, .btn').forEach(btn => {
+        const txt = btn.innerText.toLowerCase();
+        if (txt.includes('summary') || txt.includes('script')) {
+            btn.addEventListener('click', function(e) {
+                if (isUserPremium) return; // Allow premium pass seamlessly
+                
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                document.getElementById('premium-lock-modal').classList.add('active');
+                window.location.hash = 'modalopen';
+                document.body.classList.add('modal-open');
+            }, true);
+        }
+    });
+});
+</script>
