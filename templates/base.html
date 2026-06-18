@@ -281,3 +281,44 @@
     }
 }
 </style>
+
+<!-- 🛠️ 2nd Click Positioning & Subscription Layout Patch -->
+<style>
+@media (max-width: 768px) {
+    body.modal-open, html {
+        overflow: hidden !important;
+        position: relative;
+    }
+    .detailed-overlay, .script-modal-container, [id^="process-"] {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        left: 0 !important;
+        right: 0 !important;
+        margin: 0 !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        top: auto !important;
+        height: 85vh !important;
+        transform: none !important;
+        border-radius: 24px 24px 0 0 !important;
+        overflow-y: auto !important;
+        background-color: #0b0f19 !important;
+        z-index: 999999 !important;
+        box-shadow: 0 -12px 30px rgba(0,0,0,0.7) !important;
+    }
+}
+</style>
+
+<script>
+// Overriding dynamic multi-clicks state layout
+document.querySelectorAll('.btn-premium-action').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Clear past active positional shifts
+        const container = document.querySelector('.detailed-overlay, .script-modal-container');
+        if(container) {
+            container.style.transform = 'none';
+            container.style.left = '0';
+        }
+    });
+});
+</script>
